@@ -1,0 +1,5 @@
+import { Link } from 'react-router-dom'
+import { LockKeyhole, Mail, ArrowRight } from 'lucide-react'
+export default function Login() {
+  return <div className="auth-page"><div className="auth-card"><div className="auth-brand">NILE <span>ANALYTICS LABS</span></div><h1>Welcome back.</h1><p>Sign in to continue your learning journey.</p><form onSubmit={e=>e.preventDefault()}><label>Email address<div className="input-icon"><Mail/><input type="email" placeholder="you@example.com"/></div></label><label>Password<div className="input-icon"><LockKeyhole/><input type="password" placeholder="••••••••"/></div></label><div className="form-row"><label className="check"><input type="checkbox"/> Remember me</label><a href="#">Forgot password?</a></div><button className="btn btn-primary full">Sign In <ArrowRight size={18}/></button></form><p className="auth-bottom">Don't have an account? <Link to="/register">Create one</Link></p></div></div>
+}
