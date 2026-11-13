@@ -34,7 +34,7 @@ export default function CourseQuizzes({ courseId, userId }) {
       setSelectedId(current => current || quizRows[0]?.id || '')
       if (quizRows.length) {
         const { data, error: questionError } = await supabase.from('quiz_questions')
-          .select('id,quiz_id,question_text,options,explanation,sort_order')
+          .select('id,quiz_id,question_text,options,sort_order')
           .in('quiz_id', quizRows.map(item => item.id)).order('sort_order')
         if (!active) return
         if (questionError) setError(questionError.message)
