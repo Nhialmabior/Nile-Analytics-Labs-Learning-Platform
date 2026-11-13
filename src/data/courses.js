@@ -37,11 +37,12 @@ export const courses = [
     icon: '∑',
     description: 'Learn data management, descriptive statistics, regression and reporting using Stata.',
     modules: [
-      { title: 'Stata Interface & Commands', lessons: 5 },
-      { title: 'Data Management', lessons: 7 },
-      { title: 'Descriptive Statistics', lessons: 6 },
-      { title: 'Regression Analysis', lessons: 7 },
-      { title: 'Applied Research Project', lessons: 5 }
+      { title: 'Stata Foundations and Research Workflow', lessons: 5 },
+      { title: 'Importing, Inspecting and Managing Data', lessons: 5 },
+      { title: 'Data Cleaning and Transformation', lessons: 5 },
+      { title: 'Descriptive Statistics and Data Exploration', lessons: 5 },
+      { title: 'Statistical Analysis and Regression', lessons: 5 },
+      { title: 'Reproducible Reporting and Applied Project', lessons: 5 }
     ]
   },
   {
