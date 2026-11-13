@@ -16,14 +16,17 @@ create table if not exists public.quiz_questions (
   quiz_id uuid not null references public.quizzes(id) on delete cascade,
   question_text text not null,
   options jsonb not null check (jsonb_typeof(options) = 'array' and jsonb_array_length(options) >= 2),
-  explanation text not null default '',
   sort_order integer not null default 0
 );
 -- Correct answers are deliberately stored separately and are never selectable by learners.
+alter table public.quiz_questions drop column if exists explanation;
+
 create table if not exists public.quiz_answer_keys (
   question_id uuid primary key references public.quiz_questions(id) on delete cascade,
-  correct_option integer not null check (correct_option >= 0)
+  correct_option integer not null check (correct_option >= 0),
+  explanation text not null default ''
 );
+alter table public.quiz_answer_keys add column if not exists explanation text not null default '';
 create table if not exists public.quiz_attempts (
   id uuid primary key default gen_random_uuid(),
   quiz_id uuid not null references public.quizzes(id) on delete cascade,
