@@ -4,7 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Nile Analytics Labs - Learn data analysis and statistical computing." />
+    <meta name="theme-color" content="#0B1F3A" />
     <title>Nile Analytics Labs | Analyze today, solve tomorrow.</title>
+    <script>
+      (function () {
+        var redirect = sessionStorage.getItem('spa-redirect')
+        if (redirect) {
+          sessionStorage.removeItem('spa-redirect')
+          window.history.replaceState(null, '', redirect)
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
