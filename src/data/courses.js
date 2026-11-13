@@ -13,11 +13,14 @@ export const courses = [
     icon: '▦',
     description: 'Build practical Excel skills for cleaning, analyzing, visualizing and presenting real-world data.',
     modules: [
-      { title: 'Getting Started with Excel', lessons: 5 },
-      { title: 'Data Cleaning & Preparation', lessons: 7 },
-      { title: 'Formulas & Functions', lessons: 8 },
-      { title: 'PivotTables & Charts', lessons: 7 },
-      { title: 'Dashboard Project', lessons: 5 }
+      { title: 'Introduction to Excel', lessons: 4 },
+      { title: 'Data Entry and Organisation', lessons: 4 },
+      { title: 'Essential Formulas and Functions', lessons: 4 },
+      { title: 'Data Cleaning and Preparation', lessons: 4 },
+      { title: 'Data Analysis Functions', lessons: 4 },
+      { title: 'Sorting, Filtering and PivotTables', lessons: 4 },
+      { title: 'Data Visualisation and Dashboards', lessons: 4 },
+      { title: 'Final Practical Data Analysis Project', lessons: 4 }
     ]
   },
   {
