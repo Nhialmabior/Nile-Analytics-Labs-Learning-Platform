@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, role')
+        .select('id, full_name, role, phone, location, institution, bio')
         .eq('id', user.id)
         .maybeSingle()
 
@@ -60,12 +60,23 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const refreshProfile = async () => {
+    const currentUser = session?.user
+    if (!currentUser) return { error: new Error('You must be signed in.') }
+    const { data, error } = await supabase.from('profiles')
+      .select('id, full_name, role, phone, location, institution, bio')
+      .eq('id', currentUser.id).maybeSingle()
+    if (!error) setProfile(data)
+    return { data, error }
+  }
+
   const value = {
     session,
     user: session?.user ?? null,
     profile,
     role: profile?.role ?? null,
     loading,
+    refreshProfile,
     signOut: () => supabase.auth.signOut()
   }
 
