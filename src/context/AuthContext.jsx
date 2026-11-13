@@ -10,39 +10,52 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let active = true
+    let profileRequest = 0
 
     async function loadProfile(user) {
+      const requestId = ++profileRequest
+
       if (!user) {
-        if (active) setProfile(null)
+        if (active && requestId === profileRequest) {
+          setProfile(null)
+          setLoading(false)
+        }
         return
       }
+
+      if (active) setLoading(true)
+
       const { data, error } = await supabase
         .from('profiles')
         .select('id, full_name, role')
         .eq('id', user.id)
         .maybeSingle()
-      if (active) setProfile(error ? null : data)
+
+      if (active && requestId === profileRequest) {
+        setProfile(error ? null : data)
+        setLoading(false)
+      }
     }
 
     supabase.auth.getSession().then(async ({ data: { session: currentSession } }) => {
       if (!active) return
       setSession(currentSession)
       await loadProfile(currentSession?.user ?? null)
-      if (active) setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!active) return
       setSession(nextSession)
-      if (!nextSession) {
-        setProfile(null)
-        setLoading(false)
-      } else {
-        setTimeout(() => loadProfile(nextSession.user), 0)
-      }
+      setLoading(true)
+      // Defer the Supabase query until after the auth callback completes.
+      setTimeout(() => {
+        if (active) loadProfile(nextSession?.user ?? null)
+      }, 0)
     })
 
     return () => {
       active = false
+      profileRequest += 1
       subscription.unsubscribe()
     }
   }, [])
