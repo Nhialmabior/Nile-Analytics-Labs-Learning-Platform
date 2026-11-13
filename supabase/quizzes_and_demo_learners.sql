@@ -117,8 +117,9 @@ begin
   end if;
 
   select count(*) into v_total from public.quiz_questions qq where qq.quiz_id=p_quiz_id;
-  if v_total=0 or jsonb_array_length(p_answers) <> v_total then
-    raise exception 'Please answer every question before submitting.';
+  if v_total=0 or jsonb_array_length(p_answers) <> v_total
+     or (select count(distinct a->>'question_id') from jsonb_array_elements(p_answers) a) <> v_total then
+    raise exception 'Please answer every question once before submitting.';
   end if;
 
   if exists (
