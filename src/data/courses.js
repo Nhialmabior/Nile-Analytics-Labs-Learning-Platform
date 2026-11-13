@@ -59,11 +59,14 @@ export const courses = [
     icon: 'R',
     description: 'Learn R from the foundations through data manipulation, visualization and statistical analysis.',
     modules: [
-      { title: 'R Fundamentals', lessons: 7 },
-      { title: 'Data Frames & Tidy Data', lessons: 8 },
-      { title: 'Data Cleaning with R', lessons: 8 },
-      { title: 'Data Visualization', lessons: 9 },
-      { title: 'Statistics & Final Project', lessons: 8 }
+      { title: 'Getting Started with R and RStudio', lessons: 5 },
+      { title: 'R Fundamentals and Programming', lessons: 5 },
+      { title: 'Importing Data and Working with Data Frames', lessons: 5 },
+      { title: 'Data Wrangling with dplyr and tidyr', lessons: 5 },
+      { title: 'Data Cleaning and Quality Assurance', lessons: 5 },
+      { title: 'Data Visualisation with ggplot2', lessons: 5 },
+      { title: 'Descriptive Statistics and Statistical Modelling', lessons: 5 },
+      { title: 'Reproducible Reporting and Applied Project', lessons: 5 }
     ]
   },
   {
