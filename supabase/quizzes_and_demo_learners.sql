@@ -23,10 +23,9 @@ alter table public.quiz_questions drop column if exists explanation;
 
 create table if not exists public.quiz_answer_keys (
   question_id uuid primary key references public.quiz_questions(id) on delete cascade,
-  correct_option integer not null check (correct_option >= 0),
-  explanation text not null default ''
+  correct_option integer not null check (correct_option >= 0)
 );
-alter table public.quiz_answer_keys add column if not exists explanation text not null default '';
+alter table public.quiz_answer_keys drop column if exists explanation;
 create table if not exists public.quiz_attempts (
   id uuid primary key default gen_random_uuid(),
   quiz_id uuid not null references public.quizzes(id) on delete cascade,
@@ -183,26 +182,26 @@ begin
   ) loop
     if not exists(select 1 from public.quiz_questions where quiz_id=v_quiz) then
       if (select title from public.quizzes where id=v_quiz)='Excel Foundations Checkpoint' then
-        insert into public.quiz_questions(quiz_id,question_text,options,explanation,sort_order) values
-        (v_quiz,'What is an Excel workbook?','["A single cell","An Excel file containing one or more worksheets","A formula","A chart only"]','A workbook is the Excel file; it can contain multiple worksheets.',1),
-        (v_quiz,'What is the intersection of a row and a column called?','["A cell","A range","A ribbon","A field"]','A cell is identified by its column letter and row number.',2),
-        (v_quiz,'Which symbol begins a formula in Excel?','["#","@","=","%"]','Excel formulas begin with an equals sign.',3),
-        (v_quiz,'Which format is most suitable for a date value?','["General text","Date","Scientific","Accounting"]','Use a date format so Excel can interpret and display dates consistently.',4),
-        (v_quiz,'What does the Name Box commonly display?','["The active cell reference","The workbook password","The file size","The chart title"]','The Name Box shows the active cell address or a named range.',5);
+        insert into public.quiz_questions(quiz_id,question_text,options,sort_order) values
+        (v_quiz,'What is an Excel workbook?','["A single cell","An Excel file containing one or more worksheets","A formula","A chart only"]',1),
+        (v_quiz,'What is the intersection of a row and a column called?','["A cell","A range","A ribbon","A field"]',2),
+        (v_quiz,'Which symbol begins a formula in Excel?','["#","@","=","%"]',3),
+        (v_quiz,'Which format is most suitable for a date value?','["General text","Date","Scientific","Accounting"]',4),
+        (v_quiz,'What does the Name Box commonly display?','["The active cell reference","The workbook password","The file size","The chart title"]',5);
       elsif (select title from public.quizzes where id=v_quiz)='Formulas and Functions Checkpoint' then
         insert into public.quiz_questions(quiz_id,question_text,options,explanation,sort_order) values
-        (v_quiz,'Which function adds values in a range?','["COUNT","SUM","MAX","IF"]','SUM adds numeric values.',1),
-        (v_quiz,'Which function calculates the arithmetic mean?','["AVERAGE","MIN","COUNTA","ROUND"]','AVERAGE returns the arithmetic mean of numeric values.',2),
-        (v_quiz,'What does the IF function do?','["Creates a chart","Tests a condition and returns a result for true or false","Removes duplicates","Sorts a table"]','IF evaluates a logical test and returns one result when true and another when false.',3),
-        (v_quiz,'Which reference stays fixed when a formula is copied?','["A1","A$1 only","$A$1","A1:B2"]','An absolute reference such as $A$1 locks both the column and row.',4),
-        (v_quiz,'Which function counts non-empty cells?','["COUNTBLANK","COUNTA","SUM","MIN"]','COUNTA counts cells containing any value.',5);
+        (v_quiz,'Which function adds values in a range?','["COUNT","SUM","MAX","IF"]',1),
+        (v_quiz,'Which function calculates the arithmetic mean?','["AVERAGE","MIN","COUNTA","ROUND"]',2),
+        (v_quiz,'What does the IF function do?','["Creates a chart","Tests a condition and returns a result for true or false","Removes duplicates","Sorts a table"]',3),
+        (v_quiz,'Which reference stays fixed when a formula is copied?','["A1","A$1 only","$A$1","A1:B2"]',4),
+        (v_quiz,'Which function counts non-empty cells?','["COUNTBLANK","COUNTA","SUM","MIN"]',5);
       else
         insert into public.quiz_questions(quiz_id,question_text,options,explanation,sort_order) values
-        (v_quiz,'Which tool identifies repeated records in a selected range?','["Remove Duplicates","Goal Seek","Freeze Panes","Flash Fill"]','Remove Duplicates removes repeated rows based on selected columns.',1),
-        (v_quiz,'What should you do before cleaning an important dataset?','["Delete the original","Make a backup copy","Sort randomly","Hide all columns"]','Keep an untouched copy so the original data can be recovered and audited.',2),
-        (v_quiz,'What is the main purpose of a PivotTable?','["Design a logo","Summarise and analyse data by categories","Encrypt a workbook","Write macros"]','PivotTables group and aggregate data interactively.',3),
-        (v_quiz,'Which feature displays only records meeting selected criteria?','["Filter","Merge Cells","Wrap Text","Page Layout"]','Filters temporarily show records that match chosen criteria.',4),
-        (v_quiz,'What is a good practice for a reliable dataset?','["Multiple header rows","One record per row and one variable per column","Merged cells throughout","Blank column names"]','A tidy tabular structure supports sorting, filtering and analysis.',5);
+        (v_quiz,'Which tool identifies repeated records in a selected range?','["Remove Duplicates","Goal Seek","Freeze Panes","Flash Fill"]',1),
+        (v_quiz,'What should you do before cleaning an important dataset?','["Delete the original","Make a backup copy","Sort randomly","Hide all columns"]',2),
+        (v_quiz,'What is the main purpose of a PivotTable?','["Design a logo","Summarise and analyse data by categories","Encrypt a workbook","Write macros"]',3),
+        (v_quiz,'Which feature displays only records meeting selected criteria?','["Filter","Merge Cells","Wrap Text","Page Layout"]',4),
+        (v_quiz,'What is a good practice for a reliable dataset?','["Multiple header rows","One record per row and one variable per column","Merged cells throughout","Blank column names"]',5);
       end if;
     end if;
   end loop;
