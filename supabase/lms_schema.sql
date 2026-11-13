@@ -189,3 +189,13 @@ values
 on conflict (slug) do nothing;
 
 -- Ensure authenticated users can read the basic profile rows under the existing profile policies.
+
+-- Table privileges are granted to authenticated users; row-level security above
+-- remains the authority that determines which rows each user can access.
+grant select, insert, update, delete on public.courses to authenticated;
+grant select, insert, update, delete on public.course_modules to authenticated;
+grant select, insert, update, delete on public.lessons to authenticated;
+grant select, insert, update, delete on public.enrollments to authenticated;
+grant select, insert, update, delete on public.lesson_progress to authenticated;
+grant select, insert, update, delete on public.assessments to authenticated;
+grant select, insert, update, delete on public.assessment_submissions to authenticated;
