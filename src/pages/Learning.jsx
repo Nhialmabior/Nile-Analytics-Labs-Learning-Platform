@@ -130,7 +130,40 @@ export default function Learning() {
       completedIds = (progressRows || []).map(item => item.lesson_id)
     }
 
+    const { data: assessmentRows, error: assessmentError } = await supabase
+      .from('assessments')
+      .select('id, title, instructions, total_marks, due_at, created_at')
+      .eq('course_id', courseRow.id)
+      .eq('is_published', true)
+      .order('created_at', { ascending: true })
+
+    if (assessmentError) {
+      setError(assessmentError.message)
+      setLoading(false)
+      return
+    }
+
+    const assessmentIds = (assessmentRows || []).map(item => item.id)
+    let submissionRows = []
+    if (assessmentIds.length) {
+      const { data, error: submissionError } = await supabase
+        .from('assessment_submissions')
+        .select('id, assessment_id, submission_text, resource_url, score, feedback, graded_at, submitted_at')
+        .eq('learner_id', user.id)
+        .in('assessment_id', assessmentIds)
+      if (submissionError) {
+        setError(submissionError.message)
+        setLoading(false)
+        return
+      }
+      submissionRows = data || []
+    }
+
     setCourse(courseRow)
+    setAssessments(assessmentRows || [])
+    setSubmissions(submissionRows)
+    setSubmissionText('')
+    setSubmissionUrl('')
     setModules(moduleRows || [])
     setLessons(lessonRows)
     setCompleted(completedIds)
