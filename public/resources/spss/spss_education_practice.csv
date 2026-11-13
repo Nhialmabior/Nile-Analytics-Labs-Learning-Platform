@@ -1,0 +1,82 @@
+Learner_ID,School,County,Gender,Age,Grade,Attendance_Days,Enrolled_Days,Assessment_Score,Programme_Status,Household_Income_KES
+SP001,Juba Primary,Central Equatoria,Female,11,Grade 2,42,81,48,Active,16375
+SP002,Nile View School,Eastern Equatoria,Male,12,Grade 3,49,82,61,Active,17750
+SP003,Unity Academy,Western Equatoria,Female,13,Grade 4,56,83,74,Completed,19125
+SP004,Riverbank School,Jonglei,Male,14,Grade 5,63,84,87,At risk,20500
+SP005,Hope Learning Centre,Upper Nile,Female,15,Grade 6,70,85,100,Active,21875
+SP006,Juba Primary,Central Equatoria,Male,16,Grade 7,77,86,47,Completed,23250
+SP007,Nile View School,Eastern Equatoria,Female,17,Grade 8,84,87,60,Active,24625
+SP008,Unity Academy,Western Equatoria,Male,18,Grade 1,91,88,73,At risk,26000
+SP009,Riverbank School,Jonglei,Female,10,Grade 2,98,89,,Completed,27375
+SP010,Hope Learning Centre,Upper Nile,Male,11,Grade 3,40,90,99,Active,28750
+SP011,Juba Primary,Central Equatoria,,12,Grade 4,47,91,46,Active,30125
+SP012,Nile View School,Eastern Equatoria,Male,13,Grade 5,54,92,59,At risk,31500
+SP013,Unity Academy,Western Equatoria,Female,14,Grade 6,,93,72,Active,32875
+SP014,Riverbank School,Jonglei,Male,15,Grade 7,68,94,85,Active,34250
+SP015,Hope Learning Centre,Upper Nile,Female,16,Grade 8,75,95,98,Completed,35625
+SP016,Juba Primary,Central Equatoria,Male,17,Grade 1,82,96,45,At risk,37000
+SP017,Nile View School,Eastern Equatoria,Female,18,Grade 2,89,97,58,Active,38375
+SP018,Unity Academy,Western Equatoria,Male,10,Grade 3,96,98,,Completed,39750
+SP019,Riverbank School,Jonglei,Female,11,Grade 4,38,99,84,Active,41125
+SP020,Hope Learning Centre,Upper Nile,Male,12,Grade 5,45,100,97,At risk,42500
+SP021,Juba Primary,Central Equatoria,Female,13,Grade 6,52,80,44,Completed,43875
+SP022,Nile View School,Eastern Equatoria,,14,Grade 7,59,81,57,Active,45250
+SP023,Unity Academy,Western Equatoria,Female,15,Grade 8,66,82,70,Active,46625
+SP024,Riverbank School,Jonglei,Male,16,Grade 1,73,83,83,At risk,48000
+SP025,Hope Learning Centre,Upper Nile,Female,17,Grade 2,80,84,96,Active,49375
+SP026,Juba Primary,Central Equatoria,Male,18,Grade 3,,85,43,Active,50750
+SP027,Nile View School,Eastern Equatoria,Female,10,Grade 4,94,86,,Completed,52125
+SP028,Unity Academy,Western Equatoria,Male,11,Grade 5,36,87,69,At risk,53500
+SP029,Riverbank School,Jonglei,Female,12,Grade 6,43,88,82,Active,54875
+SP030,Hope Learning Centre,Upper Nile,Male,13,Grade 7,50,89,95,Completed,56250
+SP031,Juba Primary,Central Equatoria,Female,14,Grade 8,57,90,42,Active,57625
+SP032,Nile View School,Eastern Equatoria,Male,15,Grade 1,64,91,55,At risk,59000
+SP033,Unity Academy,Western Equatoria,,16,Grade 2,71,92,68,Completed,60375
+SP034,Riverbank School,Jonglei,Male,17,Grade 3,78,93,81,Active,61750
+SP035,Hope Learning Centre,Upper Nile,Female,18,Grade 4,85,94,94,Active,63125
+SP036,Juba Primary,Central Equatoria,Male,10,Grade 5,92,95,,At risk,64500
+SP037,Nile View School,Eastern Equatoria,Female,11,Grade 6,99,96,54,Active,65875
+SP038,Unity Academy,Western Equatoria,Male,12,Grade 7,41,97,67,Active,67250
+SP039,Riverbank School,Jonglei,Female,13,Grade 8,,98,80,Completed,68625
+SP040,Hope Learning Centre,Upper Nile,Male,14,Grade 1,55,99,93,At risk,70000
+SP041,Juba Primary,Central Equatoria,Female,15,Grade 2,62,100,40,Active,71375
+SP042,Nile View School,Eastern Equatoria,Male,16,Grade 3,69,80,53,Completed,72750
+SP043,Unity Academy,Western Equatoria,Female,17,Grade 4,76,81,66,Active,74125
+SP044,Riverbank School,Jonglei,,18,Grade 5,83,82,79,At risk,75500
+SP045,Hope Learning Centre,Upper Nile,Female,10,Grade 6,90,83,,Completed,76875
+SP046,Juba Primary,Central Equatoria,Male,11,Grade 7,97,84,39,Active,78250
+SP047,Nile View School,Eastern Equatoria,Female,12,Grade 8,39,85,52,Active,79625
+SP048,Unity Academy,Western Equatoria,Male,13,Grade 1,46,86,65,At risk,81000
+SP049,Riverbank School,Jonglei,Female,14,Grade 2,53,87,78,Active,82375
+SP050,Hope Learning Centre,Upper Nile,Male,15,Grade 3,60,88,91,Active,83750
+SP051,Juba Primary,Central Equatoria,Female,16,Grade 4,67,89,38,Completed,85125
+SP052,Nile View School,Eastern Equatoria,Male,17,Grade 5,,90,51,At risk,86500
+SP053,Unity Academy,Western Equatoria,Female,18,Grade 6,81,91,64,Active,87875
+SP054,Riverbank School,Jonglei,Male,10,Grade 7,88,92,,Completed,89250
+SP055,Hope Learning Centre,Upper Nile,,11,Grade 8,95,93,90,Active,90625
+SP056,Juba Primary,Central Equatoria,Male,12,Grade 1,37,94,37,At risk,92000
+SP057,Nile View School,Eastern Equatoria,Female,13,Grade 2,44,95,50,Completed,93375
+SP058,Unity Academy,Western Equatoria,Male,14,Grade 3,51,96,63,Active,94750
+SP059,Riverbank School,Jonglei,Female,15,Grade 4,58,97,76,Active,96125
+SP060,Hope Learning Centre,Upper Nile,Male,16,Grade 5,65,98,89,At risk,97500
+SP061,Juba Primary,Central Equatoria,Female,17,Grade 6,72,99,36,Active,98875
+SP062,Nile View School,Eastern Equatoria,Male,18,Grade 7,79,100,49,Active,100250
+SP063,Unity Academy,Western Equatoria,Female,10,Grade 8,86,80,,Completed,101625
+SP064,Riverbank School,Jonglei,Male,11,Grade 1,93,81,75,At risk,103000
+SP065,Hope Learning Centre,Upper Nile,Female,12,Grade 2,,82,88,Active,104375
+SP066,Juba Primary,Central Equatoria,,13,Grade 3,42,83,35,Completed,105750
+SP067,Nile View School,Eastern Equatoria,Female,14,Grade 4,49,84,48,Active,107125
+SP068,Unity Academy,Western Equatoria,Male,15,Grade 5,56,85,61,At risk,108500
+SP069,Riverbank School,Jonglei,Female,16,Grade 6,63,86,74,Completed,109875
+SP070,Hope Learning Centre,Upper Nile,Male,17,Grade 7,70,87,87,Active,111250
+SP071,Juba Primary,Central Equatoria,Female,18,Grade 8,77,88,100,Active,112625
+SP072,Nile View School,Eastern Equatoria,Male,10,Grade 1,84,89,,At risk,114000
+SP073,Unity Academy,Western Equatoria,Female,11,Grade 2,91,90,60,Active,115375
+SP074,Riverbank School,Jonglei,Male,12,Grade 3,98,91,73,Active,116750
+SP075,Hope Learning Centre,Upper Nile,Female,13,Grade 4,40,92,86,Completed,118125
+SP076,Juba Primary,Central Equatoria,Male,14,Grade 5,47,93,99,At risk,119500
+SP077,Nile View School,Eastern Equatoria,,15,Grade 6,54,94,46,Active,120875
+SP078,Unity Academy,Western Equatoria,Male,16,Grade 7,,95,59,Completed,122250
+SP079,Riverbank School,Jonglei,Female,17,Grade 8,68,96,72,Active,123625
+SP080,Hope Learning Centre,Upper Nile,Male,18,Grade 1,75,97,85,At risk,125000
+SP017,Nile View School,Eastern Equatoria,Female,18,Grade 2,89,97,58,Active,38375
