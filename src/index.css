@@ -30,3 +30,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
   .dash-search{min-width:0;flex:1;margin-left:12px}
   .dash-search span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
+
+
+/* Supabase authentication feedback */
+.auth-message{margin:14px 0;padding:12px 14px;border:1px solid #b8e3d5;border-radius:9px;background:#effaf5;color:#176b4b;font-size:11px;line-height:1.6}
+.auth-error{border-color:#f1c4c4;background:#fff3f3;color:#9b2929}
