@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import PublicLayout from './layouts/PublicLayout'
 import DashboardLayout from './layouts/DashboardLayout'
 import Home from './pages/Home'
@@ -14,6 +14,10 @@ import Learning from './pages/Learning'
 import Profile from './pages/Profile'
 import Certificates from './pages/Certificates'
 
+function NotFound() {
+  return <div className="section container"><span className="section-kicker">PAGE NOT FOUND</span><h1>We couldn't find that page.</h1><p>The link may be outdated or the page may have moved.</p><Link className="btn btn-primary" to="/">Return to homepage</Link></div>
+}
+
 export default function App() {
   return (
     <Routes>
@@ -25,8 +29,8 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="*" element={<NotFound />} />
       </Route>
-
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/my-courses" element={<MyCourses />} />
