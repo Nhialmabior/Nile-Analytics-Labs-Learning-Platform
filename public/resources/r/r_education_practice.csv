@@ -1,0 +1,82 @@
+Learner_ID,School,County,Gender,Age,Grade,Attendance_Days,Enrolled_Days,Assessment_Score,Programme_Status,Household_Income_KES
+R001,River Nile School,Upper Nile,Male,11,Grade 5,7,101,48,Completed,16379
+R002,Hope Academy,Jonglei,Female,12,Grade 6,14,91,61,Withdrawn,17758
+R003,Future Stars,Eastern Equatoria,,13,Grade 7,21,102,74,Active,19137
+R004,Unity School,Central Equatoria,Female,14,Grade 8,28,92,87,Completed,20516
+R005,Juba Primary,Upper Nile,Male,15,Grade 4,35,103,100,Withdrawn,21895
+R006,River Nile School,Jonglei,,16,Grade 5,42,93,47,Active,23274
+R007,Hope Academy,Eastern Equatoria,Male,17,Grade 6,49,104,60,Completed,24653
+R008,Future Stars,Central Equatoria,Female,10,Grade 7,56,94,73,Withdrawn,26032
+R009,Unity School,Upper Nile,,11,Grade 8,63,105,86,Active,27411
+R010,Juba Primary,Jonglei,Female,12,Grade 4,70,95,99,Completed,28790
+R011,River Nile School,Eastern Equatoria,Male,13,Grade 5,77,106,46,Withdrawn,30169
+R012,Hope Academy,Central Equatoria,,14,Grade 6,84,96,59,Active,31548
+R013,Future Stars,Upper Nile,Male,15,Grade 7,,107,72,Completed,32927
+R014,Unity School,Jonglei,Female,16,Grade 8,98,97,85,Withdrawn,34306
+R015,Juba Primary,Eastern Equatoria,,17,Grade 4,4,108,98,Active,35685
+R016,River Nile School,Central Equatoria,Female,10,Grade 5,11,98,45,Completed,37064
+R017,Hope Academy,Upper Nile,Male,11,Grade 6,18,109,,Withdrawn,38443
+R018,Future Stars,Jonglei,,12,Grade 7,25,99,71,Active,39822
+R019,Unity School,Eastern Equatoria,Male,13,Grade 8,32,110,84,Completed,41201
+R020,Juba Primary,Central Equatoria,Female,14,Grade 4,39,100,97,Withdrawn,42580
+R021,River Nile School,Upper Nile,,15,Grade 5,46,90,44,Active,43959
+R022,Hope Academy,Jonglei,Female,16,Grade 6,53,101,57,Completed,45338
+R023,Future Stars,Eastern Equatoria,Male,17,Grade 7,60,91,70,Withdrawn,46717
+R024,Unity School,Central Equatoria,,10,Grade 8,67,102,83,Active,48096
+R025,Juba Primary,Upper Nile,Male,11,Grade 4,74,92,96,Completed,49475
+R026,River Nile School,Jonglei,Female,12,Grade 5,,103,43,Withdrawn,50854
+R027,Hope Academy,Eastern Equatoria,,13,Grade 6,88,93,56,Active,52233
+R028,Future Stars,Central Equatoria,Female,14,Grade 7,95,104,69,Completed,53612
+R029,Unity School,Upper Nile,Male,15,Grade 8,1,94,82,Withdrawn,54991
+R030,Juba Primary,Jonglei,,16,Grade 4,8,105,95,Active,56370
+R031,River Nile School,Eastern Equatoria,Male,17,Grade 5,15,95,42,Completed,57749
+R032,Hope Academy,Central Equatoria,Female,10,Grade 6,22,106,55,Withdrawn,59128
+R033,Future Stars,Upper Nile,,11,Grade 7,29,96,68,Active,60507
+R034,Unity School,Jonglei,Female,12,Grade 8,36,107,,Completed,61886
+R035,Juba Primary,Eastern Equatoria,Male,13,Grade 4,43,97,94,Withdrawn,63265
+R036,River Nile School,Central Equatoria,,14,Grade 5,50,108,41,Active,64644
+R037,Hope Academy,Upper Nile,Male,15,Grade 6,57,98,54,Completed,66023
+R038,Future Stars,Jonglei,Female,16,Grade 7,64,109,67,Withdrawn,67402
+R039,Unity School,Eastern Equatoria,,17,Grade 8,,99,80,Active,68781
+R040,Juba Primary,Central Equatoria,Female,10,Grade 4,78,110,93,Completed,70160
+R041,River Nile School,Upper Nile,Male,11,Grade 5,85,100,40,Withdrawn,71539
+R042,Hope Academy,Jonglei,,12,Grade 6,92,90,53,Active,72918
+R043,Future Stars,Eastern Equatoria,Male,13,Grade 7,99,101,66,Completed,74297
+R044,Unity School,Central Equatoria,Female,14,Grade 8,5,91,79,Withdrawn,75676
+R045,Juba Primary,Upper Nile,,15,Grade 4,12,102,92,Active,77055
+R046,River Nile School,Jonglei,Female,16,Grade 5,19,92,39,Completed,78434
+R047,Hope Academy,Eastern Equatoria,Male,17,Grade 6,26,103,52,Withdrawn,79813
+R048,Future Stars,Central Equatoria,,10,Grade 7,33,93,65,Active,81192
+R049,Unity School,Upper Nile,Male,11,Grade 8,40,104,78,Completed,82571
+R050,Juba Primary,Jonglei,Female,12,Grade 4,47,94,91,Withdrawn,83950
+R051,River Nile School,Eastern Equatoria,,13,Grade 5,54,105,,Active,85329
+R052,Hope Academy,Central Equatoria,Female,14,Grade 6,,95,51,Completed,86708
+R053,Future Stars,Upper Nile,Male,15,Grade 7,68,106,64,Withdrawn,88087
+R054,Unity School,Jonglei,,16,Grade 8,75,96,77,Active,89466
+R055,Juba Primary,Eastern Equatoria,Male,17,Grade 4,82,107,90,Completed,90845
+R056,River Nile School,Central Equatoria,Female,10,Grade 5,89,97,37,Withdrawn,92224
+R057,Hope Academy,Upper Nile,,11,Grade 6,96,108,50,Active,93603
+R058,Future Stars,Jonglei,Female,12,Grade 7,2,98,63,Completed,94982
+R059,Unity School,Eastern Equatoria,Male,13,Grade 8,9,109,76,Withdrawn,96361
+R060,Juba Primary,Central Equatoria,,14,Grade 4,16,99,89,Active,97740
+R061,River Nile School,Upper Nile,Male,15,Grade 5,23,110,36,Completed,99119
+R062,Hope Academy,Jonglei,Female,16,Grade 6,30,100,49,Withdrawn,15498
+R063,Future Stars,Eastern Equatoria,,17,Grade 7,37,90,62,Active,16877
+R064,Unity School,Central Equatoria,Female,10,Grade 8,44,101,75,Completed,18256
+R065,Juba Primary,Upper Nile,Male,11,Grade 4,,91,88,Withdrawn,19635
+R066,River Nile School,Jonglei,,12,Grade 5,58,102,35,Active,21014
+R067,Hope Academy,Eastern Equatoria,Male,13,Grade 6,65,92,48,Completed,22393
+R068,Future Stars,Central Equatoria,Female,14,Grade 7,72,103,,Withdrawn,23772
+R069,Unity School,Upper Nile,,15,Grade 8,79,93,74,Active,25151
+R070,Juba Primary,Jonglei,Female,16,Grade 4,86,104,87,Completed,26530
+R071,River Nile School,Eastern Equatoria,Male,17,Grade 5,93,94,100,Withdrawn,27909
+R072,Hope Academy,Central Equatoria,,10,Grade 6,100,105,47,Active,29288
+R073,Future Stars,Upper Nile,Male,11,Grade 7,6,95,60,Completed,30667
+R074,Unity School,Jonglei,Female,12,Grade 8,13,106,73,Withdrawn,32046
+R075,Juba Primary,Eastern Equatoria,,13,Grade 4,20,96,86,Active,33425
+R076,River Nile School,Central Equatoria,Female,14,Grade 5,27,107,99,Completed,34804
+R077,Hope Academy,Upper Nile,Male,15,Grade 6,34,97,46,Withdrawn,36183
+R078,Future Stars,Jonglei,,16,Grade 7,,108,59,Active,37562
+R079,Unity School,Eastern Equatoria,Male,17,Grade 8,48,98,72,Completed,38941
+R080,Juba Primary,Central Equatoria,Female,10,Grade 4,55,109,85,Withdrawn,40320
+R018,Future Stars,Jonglei,,12,Grade 7,25,99,71,Active,39822
