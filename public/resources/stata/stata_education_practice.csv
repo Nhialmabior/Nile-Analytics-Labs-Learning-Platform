@@ -1,0 +1,62 @@
+Student_ID,School,County,Gender,Age,Grade,Attendance_Days,Enrolled_Days,Assessment_Score,Programme_Status,Household_Income_KES
+ST001,Juba Central,Juba,Male,10,5,74,81,55,Completed,7879
+ST002,Juba Central,Juba,Female,11,6,68,82,68,Active,9258
+ST003,Juba Central,Juba,Male,12,7,81,83,81,At Risk,10637
+ST004,Juba Central,Juba,Female,13,8,75,84,94,Active,12016
+ST005,Juba Central,Juba,Male,14,4,69,85,50,Completed,13395
+ST006,Juba Central,Juba,Female,15,5,82,86,63,Active,14774
+ST007,Juba Central,Juba,Male,16,6,76,87,76,At Risk,16153
+ST008,Juba Central,Juba,Female,9,7,,88,89,Active,17532
+ST009,Juba Central,Juba,Male,10,8,83,89,45,Completed,18911
+ST010,Juba Central,Juba,Female,11,4,77,90,58,Active,20290
+ST011,Juba Central,Juba,Male,12,5,79,80,71,At Risk,21669
+ST012,Juba Central,Juba,Female,13,6,73,81,84,Active,23048
+ST013,Juba Central,Juba,Male,14,7,67,82,97,Completed,24427
+ST014,Juba Central,Juba,Female,15,8,80,83,53,Active,25806
+ST015,Juba Central,Juba,Male,16,4,74,84,66,At Risk,27185
+ST016,Juba Central,Juba,Female,9,5,68,85,79,Active,28564
+ST017,Juba Central,Juba,Male,10,6,81,86,,Completed,29943
+ST018,Juba Central,Juba,Female,11,7,75,87,48,Active,31322
+ST019,Juba Central,Juba,Male,12,8,88,88,61,At Risk,32701
+ST020,Juba Central,Juba,Female,13,4,82,89,74,Active,34080
+ST021,Juba Central,Juba,Male,14,5,76,90,87,Completed,35459
+ST022,Juba Central,Juba,Female,15,6,78,80,43,Active,36838
+ST023,Juba Central,Juba,Male,16,7,72,81,56,At Risk,38217
+ST024,Juba Central,Juba,Female,9,8,66,82,69,Active,39596
+ST025,Juba Central,Juba,Male,10,4,79,83,82,Completed,40975
+ST026,Juba Central,Juba,Female,11,5,73,84,95,Active,42354
+ST027,Juba Central,Juba,Male,12,6,67,85,51,At Risk,43733
+ST028,Juba Central,Juba,Female,13,7,80,86,64,Active,45112
+ST029,Juba Central,Juba,,14,8,74,87,77,Completed,46491
+ST030,Juba Central,Juba,Female,15,4,87,88,90,Active,47870
+ST031,Juba Central,Juba,Male,16,5,81,89,46,At Risk,7249
+ST032,Juba Central,Juba,Female,9,6,75,90,59,Active,8628
+ST033,Juba Central,Juba,Male,10,7,77,80,72,Completed,10007
+ST034,Juba Central,Juba,Female,11,8,71,81,85,Active,11386
+ST035,Juba Central,Juba,Male,12,4,65,82,98,At Risk,12765
+ST036,Juba Central,Juba,Female,13,5,78,83,54,Active,14144
+ST037,Juba Central,Juba,Male,14,6,72,84,67,Completed,15523
+ST038,Juba Central,Juba,Female,15,7,85,85,80,Active,16902
+ST039,Juba Central,Juba,Male,16,8,79,86,93,At Risk,18281
+ST040,Juba Central,Juba,Female,9,4,73,87,49,Active,19660
+ST041,Juba Central,Juba,Male,10,5,86,88,62,Completed,21039
+ST042,Juba Central,Juba,Female,11,6,80,89,75,Active,22418
+ST043,Juba Central,Juba,Male,12,7,74,90,88,At Risk,23797
+ST044,Juba Central,Juba,Female,13,8,76,80,44,,25176
+ST045,Juba Central,Juba,Male,14,4,70,81,57,Completed,26555
+ST046,Juba Central,Juba,Female,15,5,64,82,70,Active,27934
+ST047,Juba Central,Juba,Male,16,6,77,83,83,At Risk,29313
+ST048,Juba Central,Juba,Female,9,7,71,84,96,Active,30692
+ST049,Juba Central,Juba,Male,10,8,84,85,52,Completed,32071
+ST050,Juba Central,Juba,Female,11,4,78,86,65,Active,33450
+ST051,Juba Central,Juba,Male,12,5,72,87,78,At Risk,34829
+ST052,Juba Central,Juba,Female,13,6,85,88,91,Active,36208
+ST053,Juba Central,Juba,Male,14,7,79,89,47,Completed,37587
+ST054,Juba Central,Juba,Female,15,8,73,90,60,Active,38966
+ST055,Juba Central,Juba,Male,16,4,75,80,73,At Risk,40345
+ST056,Juba Central,Juba,Female,9,5,69,81,86,Active,41724
+ST057,Juba Central,Juba,Male,10,6,82,82,42,Completed,43103
+ST058,Juba Central,Juba,Female,11,7,76,83,55,Active,44482
+ST059,Juba Central,Juba,Male,12,8,70,84,68,At Risk,45861
+ST060,Juba Central,Juba,Female,13,4,83,85,81,Active,47240
+ST012,Juba Central,Juba,Female,13,6,73,81,84,Active,23048
