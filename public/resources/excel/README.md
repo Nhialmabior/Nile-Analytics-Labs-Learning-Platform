@@ -11,7 +11,7 @@ This is a **synthetic teaching dataset** created for the Nile Analytics Labs Exc
 
 ## Designed learning activities
 
-The file intentionally contains a small number of data-quality issues, including blank values. Learners should also practise checking for duplicates, validating values and documenting cleaning decisions before analysis.
+The file intentionally contains data-quality issues: one duplicated record, blank values and a few values that should be checked against the valid range. Learners should identify these issues, document their decisions and preserve an untouched copy before cleaning.
 
 ## Important
 
