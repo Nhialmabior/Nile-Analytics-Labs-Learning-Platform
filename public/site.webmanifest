@@ -1,0 +1,10 @@
+{
+  "name": "Nile Analytics Labs",
+  "short_name": "Nile Labs",
+  "description": "Practical data analysis and statistical computing education.",
+  "start_url": "/Nile-Analytics-Labs-Learning-Platform/",
+  "scope": "/Nile-Analytics-Labs-Learning-Platform/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#062b3d"
+}
