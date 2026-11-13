@@ -4,6 +4,13 @@
 -- Learners may submit and revise only their written response and resource link.
 -- They cannot set or change scores, feedback, timestamps, learner IDs or assessment IDs.
 revoke insert, update on table public.assessment_submissions from authenticated;
+-- Clear any previous column-level grants too, so rerunning this migration
+-- cannot leave an old permission that exposes grading fields.
+revoke insert (id, score, feedback, submitted_at, graded_at)
+  on table public.assessment_submissions from authenticated;
+revoke update (id, assessment_id, learner_id, score, feedback, submitted_at, graded_at)
+  on table public.assessment_submissions from authenticated;
+
 grant insert (assessment_id, learner_id, submission_text, resource_url)
   on table public.assessment_submissions to authenticated;
 grant update (submission_text, resource_url)
