@@ -189,14 +189,14 @@ begin
         (v_quiz,'Which format is most suitable for a date value?','["General text","Date","Scientific","Accounting"]',4),
         (v_quiz,'What does the Name Box commonly display?','["The active cell reference","The workbook password","The file size","The chart title"]',5);
       elsif (select title from public.quizzes where id=v_quiz)='Formulas and Functions Checkpoint' then
-        insert into public.quiz_questions(quiz_id,question_text,options,explanation,sort_order) values
+        insert into public.quiz_questions(quiz_id,question_text,options,sort_order) values
         (v_quiz,'Which function adds values in a range?','["COUNT","SUM","MAX","IF"]',1),
         (v_quiz,'Which function calculates the arithmetic mean?','["AVERAGE","MIN","COUNTA","ROUND"]',2),
         (v_quiz,'What does the IF function do?','["Creates a chart","Tests a condition and returns a result for true or false","Removes duplicates","Sorts a table"]',3),
         (v_quiz,'Which reference stays fixed when a formula is copied?','["A1","A$1 only","$A$1","A1:B2"]',4),
         (v_quiz,'Which function counts non-empty cells?','["COUNTBLANK","COUNTA","SUM","MIN"]',5);
       else
-        insert into public.quiz_questions(quiz_id,question_text,options,explanation,sort_order) values
+        insert into public.quiz_questions(quiz_id,question_text,options,sort_order) values
         (v_quiz,'Which tool identifies repeated records in a selected range?','["Remove Duplicates","Goal Seek","Freeze Panes","Flash Fill"]',1),
         (v_quiz,'What should you do before cleaning an important dataset?','["Delete the original","Make a backup copy","Sort randomly","Hide all columns"]',2),
         (v_quiz,'What is the main purpose of a PivotTable?','["Design a logo","Summarise and analyse data by categories","Encrypt a workbook","Write macros"]',3),
