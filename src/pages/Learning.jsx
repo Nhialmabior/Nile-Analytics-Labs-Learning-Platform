@@ -224,7 +224,7 @@ export default function Learning() {
               <h1>{currentLesson.title}</h1>
               <p>{currentLesson.content}</p>
               {currentLesson.resource_url && <a className="lesson-resource-link" href={currentLesson.resource_url} target="_blank" rel="noreferrer"><FileText size={17}/> Open recommended learning resource <ExternalLink size={15}/></a>}
-              {currentLesson.video_url && <a className="lesson-resource-link" href={currentLesson.video_url.replace('/embed/', '/watch?v=')} target="_blank" rel="noreferrer"><PlayCircle size={17}/> Open video on its original platform <ExternalLink size={15}/></a>}
+              {currentLesson.video_url && <a className="lesson-resource-link" href={currentLesson.video_url} target="_blank" rel="noreferrer"><PlayCircle size={17}/> Open video on its original platform <ExternalLink size={15}/></a>}
               {error && <div className="lesson-inline-error">{error}</div>}
               <div className="lesson-completion-row">
                 {completed.includes(currentLesson.id)
