@@ -1,6 +1,8 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import PublicLayout from './layouts/PublicLayout'
 import DashboardLayout from './layouts/DashboardLayout'
+import ProtectedRoute from './components/ProtectedRoute'
+import AdminDashboard from './pages/AdminDashboard'
 import Home from './pages/Home'
 import About from './pages/About'
 import Courses from './pages/Courses'
@@ -31,7 +33,8 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
       </Route>
-      <Route element={<DashboardLayout />}>
+      <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminDashboard /></ProtectedRoute>} />
+      <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/my-courses" element={<MyCourses />} />
         <Route path="/learning/:slug" element={<Learning />} />
