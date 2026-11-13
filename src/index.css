@@ -172,3 +172,25 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
   .lesson-completion-row{align-items:flex-start;flex-direction:column}
   .lesson-step-actions{width:100%;justify-content:space-between}
 }
+
+
+/* Practical coursework and learner submissions */
+.course-assignment-panel{margin:28px 0 55px;padding:24px;background:#f7fafb;border:1px solid var(--line);border-radius:15px}
+.assignment-heading h2{margin:5px 0 7px;color:var(--navy);font:700 20px Manrope}
+.assignment-heading>p{font-size:11px;color:var(--muted);line-height:1.7}
+.assignment-card{margin-top:17px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.assignment-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.assignment-card-top h3{margin:0 0 5px;color:var(--ink);font:700 14px Manrope}
+.assignment-card-top>div>span,.assignment-submitted-at{font-size:9px;color:var(--muted)}
+.assignment-status{padding:5px 9px;border-radius:20px;font-size:9px;font-weight:800;white-space:nowrap}
+.assignment-status.pending{background:#fff5df;color:#9a6a13}
+.assignment-status.submitted{background:#e7f3ff;color:#2363a4}
+.assignment-status.graded{background:#e5f5ed;color:#18724b}
+.assignment-card>p{white-space:pre-line;margin:14px 0;color:#536b75;font-size:11px;line-height:1.8}
+.assignment-field{display:flex;flex-direction:column;gap:7px;margin:14px 0;color:var(--ink);font-size:10px;font-weight:700}
+.assignment-field textarea,.assignment-field input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:400 11px inherit}
+.assignment-field textarea:focus,.assignment-field input:focus{outline:2px solid #c7e5e9;border-color:var(--teal)}
+.assignment-feedback{padding:14px;margin:14px 0;background:#eef8f2;border-radius:9px;color:#245b42;font-size:10px;line-height:1.7}
+.assignment-feedback p{white-space:pre-line}
+.assignment-submitted-at{display:block;margin-top:12px}
+@media(max-width:720px){.course-assignment-panel{padding:15px;margin:22px 0}.assignment-card{padding:14px}.assignment-card-top{flex-direction:column}}
