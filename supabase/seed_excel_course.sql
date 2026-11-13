@@ -1,6 +1,30 @@
 -- Nile Analytics Labs: Excel for Data Analysis pilot curriculum
 -- Run after supabase/lms_schema.sql in Supabase SQL Editor.
 -- Idempotent: module and lesson order are unique within their parent records.
+-- Learners can only read published lessons in published courses. Progress is
+-- recorded only for published lessons in a course the learner has joined.
+drop policy if exists "Visible lessons" on public.lessons;
+create policy "Visible lessons" on public.lessons for select to authenticated
+  using (
+    (select public.is_admin()) or (
+      is_published and exists (
+        select 1 from public.course_modules m
+        join public.courses c on c.id = m.course_id
+        where m.id = module_id and c.is_published
+      )
+    )
+  );
+drop policy if exists "Learners record own progress" on public.lesson_progress;
+create policy "Learners record own progress" on public.lesson_progress for insert to authenticated
+  with check (
+    learner_id = (select auth.uid()) and exists (
+      select 1 from public.lessons l
+      join public.course_modules m on m.id = l.module_id
+      join public.enrollments e on e.course_id = m.course_id
+      where l.id = lesson_id and l.is_published
+        and e.learner_id = (select auth.uid()) and e.status = 'active'
+    )
+  );
 
 create unique index if not exists course_modules_course_order_uidx
   on public.course_modules(course_id, sort_order);
