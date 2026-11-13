@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Clock3, BookOpen, Star, ArrowUpRight } from 'lucide-react'
+import { Clock3, BookOpen, ArrowUpRight } from 'lucide-react'
 
 export default function CourseCard({ course }) {
   return (
@@ -9,7 +9,6 @@ export default function CourseCard({ course }) {
         <span className="cover-label">{course.category}</span>
       </div>
       <div className="course-body">
-        <div className="course-rating"><Star size={15} fill="currentColor" /> {course.rating}</div>
         <h3>{course.title}</h3>
         <p>{course.description}</p>
         <div className="course-meta">
