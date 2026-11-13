@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [courses, setCourses] = useState([])
   const [learners, setLearners] = useState([])
   const [assessments, setAssessments] = useState([])
+  const [submissions, setSubmissions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -45,14 +46,15 @@ export default function AdminDashboard() {
   const loadData = useCallback(async () => {
     setLoading(true)
     setError('')
-    const [profileRes, courseRes, enrollmentRes, assessmentRes, submissionRes] = await Promise.all([
+    const [profileRes, courseRes, enrollmentRes, assessmentRes, submissionCountRes, submissionRowsRes] = await Promise.all([
       supabase.from('profiles').select('id, full_name, role, created_at').order('created_at', { ascending: false }),
       supabase.from('courses').select('*').order('created_at', { ascending: false }),
       supabase.from('enrollments').select('id', { count: 'exact', head: true }),
       supabase.from('assessments').select('id, title, total_marks, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
-      supabase.from('assessment_submissions').select('id', { count: 'exact', head: true })
+      supabase.from('assessment_submissions').select('id', { count: 'exact', head: true }),
+      supabase.from('assessment_submissions').select('id, assessment_id, learner_id, submission_text, resource_url, score, feedback, graded_at, submitted_at').order('submitted_at', { ascending: false })
     ])
-    const firstError = profileRes.error || courseRes.error || enrollmentRes.error || assessmentRes.error || submissionRes.error
+    const firstError = profileRes.error || courseRes.error || enrollmentRes.error || assessmentRes.error || submissionCountRes.error || submissionRowsRes.error
     if (firstError) {
       setError(firstError.message.includes('does not exist') || firstError.message.includes('schema cache')
         ? 'The LMS database has not been installed yet. Run supabase/lms_schema.sql in your Supabase SQL Editor, then refresh this page.'
@@ -64,13 +66,14 @@ export default function AdminDashboard() {
       setLearners(people.filter(person => person.role !== 'admin'))
       setCourses(courseRows)
       setAssessments(assessmentRows)
+      setSubmissions(submissionRowsRes.data || [])
       setStats({
         learners: people.filter(person => person.role !== 'admin').length,
         courses: courseRows.length,
         published: courseRows.filter(course => course.is_published).length,
         enrollments: enrollmentRes.count || 0,
         assessments: assessmentRows.length,
-        submissions: submissionRes.count || 0
+        submissions: submissionCountRes.count || 0
       })
     }
     setLoading(false)
@@ -187,6 +190,35 @@ export default function AdminDashboard() {
     }
   }
 
+  async function gradeSubmission(event, submission) {
+    event.preventDefault()
+    const assessment = assessments.find(item => item.id === submission.assessment_id)
+    const formData = new FormData(event.currentTarget)
+    const score = Number(formData.get('score'))
+    const feedback = String(formData.get('feedback') || '').trim()
+
+    if (!assessment || !Number.isFinite(score) || score < 0 || score > Number(assessment.total_marks)) {
+      setError('Enter a valid mark between 0 and the assessment total.')
+      return
+    }
+
+    setSaving(true)
+    setError('')
+    setNotice('')
+    const { error: gradeError } = await supabase.rpc('grade_assessment_submission', {
+      p_submission_id: submission.id,
+      p_score: score,
+      p_feedback: feedback
+    })
+    if (gradeError) {
+      setError(gradeError.message)
+    } else {
+      setNotice('Submission graded successfully.')
+      await loadData()
+    }
+    setSaving(false)
+  }
+
   const filteredCourses = courses.filter(course => (course.title + ' ' + course.category).toLowerCase().includes(search.toLowerCase()))
   const filteredLearners = learners.filter(person => (person.full_name || '').toLowerCase().includes(search.toLowerCase()) || person.id.toLowerCase().includes(search.toLowerCase()))
 
@@ -260,6 +292,21 @@ export default function AdminDashboard() {
               <div className="admin-form-actions"><button className="btn btn-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save as draft'}</button><button className="btn btn-ghost" type="button" onClick={() => setShowAssessmentForm(false)}>Cancel</button></div>
             </form>}
             {loading ? <p className="admin-muted">Loading assessments…</p> : assessments.length === 0 ? <div className="admin-empty"><ClipboardList size={28}/><strong>No assessments created</strong><span>Create a practical assignment for one of your courses.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ASSESSMENT</th><th>COURSE</th><th>STATUS</th><th>CREATED</th><th>ACTION</th></tr></thead><tbody>{assessments.map(item => <tr key={item.id}><td><strong>{item.title}</strong><small>{item.total_marks} marks</small></td><td>{item.courses?.title || 'Course'}</td><td><span className={item.is_published ? 'admin-status published' : 'admin-status draft'}>{item.is_published ? 'Published' : 'Draft'}</span></td><td>{new Date(item.created_at).toLocaleDateString()}</td><td><button className="btn btn-ghost" type="button" onClick={() => toggleAssessment(item)}>{item.is_published ? <><EyeOff size={14}/> Unpublish</> : <><Eye size={14}/> Publish</>}</button></td></tr>)}</tbody></table></div>}
+            <div className="admin-panel-heading" style={{ marginTop: 28 }}><div><h2>Learner submissions <span className="admin-count">{submissions.length}</span></h2><p>Review work and submit marks through the protected grading function.</p></div></div>
+            {submissions.length === 0 ? <p className="admin-muted">No learner submissions have been received yet.</p> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>ASSESSMENT</th><th>SUBMISSION</th><th>GRADE / FEEDBACK</th></tr></thead><tbody>{submissions.map(submission => {
+              const assessment = assessments.find(item => item.id === submission.assessment_id)
+              const learner = learners.find(item => item.id === submission.learner_id)
+              return <tr key={submission.id}>
+                <td><strong>{learner?.full_name || 'Learner'}</strong><small>{new Date(submission.submitted_at).toLocaleString()}</small></td>
+                <td><strong>{assessment?.title || 'Assessment'}</strong><small>{assessment?.courses?.title || 'Course'} · {assessment?.total_marks || 100} marks</small></td>
+                <td><div>{submission.submission_text || 'No written response'}</div>{submission.resource_url && <a href={submission.resource_url} target="_blank" rel="noreferrer">Open submitted resource</a>}</td>
+                <td><form className="admin-grade-form" onSubmit={event => gradeSubmission(event, submission)}>
+                  <label>Mark (out of {assessment?.total_marks || 100})<input name="score" type="number" min="0" max={assessment?.total_marks || 100} step="0.5" required defaultValue={submission.score ?? ''} disabled={Boolean(submission.graded_at)} /></label>
+                  <label>Feedback<textarea name="feedback" rows="2" defaultValue={submission.feedback || ''} disabled={Boolean(submission.graded_at)} /></label>
+                  {submission.graded_at ? <span className="admin-status published">Graded · {new Date(submission.graded_at).toLocaleDateString()}</span> : <button className="btn btn-primary" type="submit" disabled={saving || !assessment}>{saving ? 'Saving…' : 'Submit grade'}</button>}
+                </form></td>
+              </tr>
+            })}</tbody></table></div>}
           </div>}
 
           {section === 'reports' && <div className="admin-stats-grid"><StatCard icon={Users} label="Learners" value={stats.learners} note="Registered learner profiles" /><StatCard icon={BookOpen} label="Published courses" value={stats.published} note="Visible to learners" /><StatCard icon={GraduationCap} label="Enrollments" value={stats.enrollments} note="All course registrations" /><StatCard icon={FileCheck2} label="Submissions" value={stats.submissions} note="Assessment work submitted" /><div className="admin-panel admin-report-note"><BarChart3 size={23} /><strong>Performance reports are being prepared</strong><span>Course completion rates, learner performance and assessment trends will be calculated once learning activity data is available.</span></div></div>}
