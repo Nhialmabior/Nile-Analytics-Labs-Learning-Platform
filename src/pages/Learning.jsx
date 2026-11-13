@@ -31,7 +31,7 @@ export default function Learning() {
   const [course, setCourse] = useState(null)
   const [modules, setModules] = useState([])
   const [lessons, setLessons] = useState([])
-  const [completed, setCompleted] = useState([])
+  const [completed, setCompleted] = useState([])\n  const [assessments, setAssessments] = useState([])\n  const [submissions, setSubmissions] = useState([])\n  const [submissionText, setSubmissionText] = useState('')\n  const [submissionUrl, setSubmissionUrl] = useState('')\n  const [submitting, setSubmitting] = useState(false)
   const [currentLessonId, setCurrentLessonId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -159,6 +159,36 @@ export default function Learning() {
     setSaving(false)
   }
 
+  async function submitAssessment(assessment) {
+    const existing = submissions.find(item => item.assessment_id === assessment.id)
+    if (existing?.graded_at) return
+    if (!submissionText.trim() && !submissionUrl.trim()) {
+      setError('Add a short response or a link to your completed workbook before submitting.')
+      return
+    }
+    setSubmitting(true)
+    setError('')
+    const payload = {
+      learner_id: user.id,
+      assessment_id: assessment.id,
+      submission_text: submissionText.trim(),
+      resource_url: submissionUrl.trim() || null
+    }
+    const result = existing
+      ? await supabase.from('assessment_submissions').update(payload).eq('id', existing.id)
+      : await supabase.from('assessment_submissions').insert(payload)
+    if (result.error) {
+      setError(result.error.message)
+    } else {
+      const { data } = await supabase.from('assessment_submissions')
+        .select('id, assessment_id, submission_text, resource_url, score, feedback, graded_at, submitted_at')
+        .eq('learner_id', user.id).eq('assessment_id', assessment.id).maybeSingle()
+      if (data) setSubmissions(previous => [...previous.filter(item => item.assessment_id !== assessment.id), data])
+      setError('')
+    }
+    setSubmitting(false)
+  }
+
   function moveLesson(direction) {
     const index = lessons.findIndex(item => item.id === currentLessonId)
     const next = lessons[index + direction]
@@ -234,6 +264,24 @@ export default function Learning() {
               </div>
             </article>
           </>}
+          {assessments.length > 0 && <section className="course-assignment-panel">
+            <div className="assignment-heading"><span className="section-kicker">COURSEWORK</span><h2>Practical assignment</h2><p>Complete the task and submit your findings or a shareable link to your workbook.</p></div>
+            {assessments.map(assessment => {
+              const submission = submissions.find(item => item.assessment_id === assessment.id)
+              const locked = Boolean(submission?.graded_at)
+              return <article className="assignment-card" key={assessment.id}>
+                <div className="assignment-card-top"><div><h3>{assessment.title}</h3><span>{assessment.total_marks} marks</span></div><span className={locked ? 'assignment-status graded' : submission ? 'assignment-status submitted' : 'assignment-status pending'}>{locked ? 'Graded' : submission ? 'Submitted' : 'Not submitted'}</span></div>
+                <p>{assessment.instructions}</p>
+                {submission?.graded_at && <div className="assignment-feedback"><strong>Instructor feedback</strong><p>{submission.feedback || 'Your submission has been reviewed.'}</p><b>Score: {submission.score ?? 'Not recorded'} / {assessment.total_marks}</b></div>}
+                {!locked && <>
+                  <label className="assignment-field">Your response<textarea rows="4" value={submissionText || submission?.submission_text || ''} onChange={event => setSubmissionText(event.target.value)} placeholder="Summarise your approach, key findings and conclusions."/></label>
+                  <label className="assignment-field">Workbook or file link (optional)<input type="url" value={submissionUrl || submission?.resource_url || ''} onChange={event => setSubmissionUrl(event.target.value)} placeholder="https://..."/></label>
+                  <button type="button" className="btn btn-primary" disabled={submitting} onClick={() => submitAssessment(assessment)}>{submitting ? 'Submitting…' : submission ? 'Update submission' : 'Submit assignment'}</button>
+                </>}
+                {submission && <small className="assignment-submitted-at">Last submitted: {new Date(submission.submitted_at).toLocaleString()}</small>}
+              </article>
+            })}
+          </section>}
         </main>
       </div>
     </div>
