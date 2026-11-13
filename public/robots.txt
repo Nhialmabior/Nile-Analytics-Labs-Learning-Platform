@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nhialmabior.github.io/Nile-Analytics-Labs-Learning-Platform/sitemap.xml
