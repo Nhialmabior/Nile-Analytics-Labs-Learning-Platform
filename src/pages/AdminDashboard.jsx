@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       supabase.from('profiles').select('id, full_name, role, created_at').order('created_at', { ascending: false }),
       supabase.from('courses').select('*').order('created_at', { ascending: false }),
       supabase.from('enrollments').select('id', { count: 'exact', head: true }),
-      supabase.from('assessments').select('id, title, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
+      supabase.from('assessments').select('id, title, total_marks, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
       supabase.from('assessment_submissions').select('id', { count: 'exact', head: true })
     ])
     const firstError = profileRes.error || courseRes.error || enrollmentRes.error || assessmentRes.error || submissionRes.error
