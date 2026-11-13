@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting | Nile Analytics Labs</title>
+    <script>
+      (function () {
+        var base = '/Nile-Analytics-Labs-Learning-Platform/'
+        var current = window.location.pathname + window.location.search + window.location.hash
+        sessionStorage.setItem('spa-redirect', current)
+        window.location.replace(base)
+      })()
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to Nile Analytics Labs…</p>
+  </body>
+</html>
