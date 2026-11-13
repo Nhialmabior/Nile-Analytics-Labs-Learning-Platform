@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import CourseQuizzes from '../components/CourseQuizzes'
 
 function getVideoEmbedUrl(value) {
   if (!value) return ''
@@ -31,7 +32,12 @@ export default function Learning() {
   const [course, setCourse] = useState(null)
   const [modules, setModules] = useState([])
   const [lessons, setLessons] = useState([])
-  const [completed, setCompleted] = useState([])\n  const [assessments, setAssessments] = useState([])\n  const [submissions, setSubmissions] = useState([])\n  const [submissionText, setSubmissionText] = useState('')\n  const [submissionUrl, setSubmissionUrl] = useState('')\n  const [submitting, setSubmitting] = useState(false)
+  const [completed, setCompleted] = useState([])
+  const [assessments, setAssessments] = useState([])
+  const [submissions, setSubmissions] = useState([])
+  const [submissionText, setSubmissionText] = useState('')
+  const [submissionUrl, setSubmissionUrl] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const [currentLessonId, setCurrentLessonId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -264,6 +270,7 @@ export default function Learning() {
               </div>
             </article>
           </>}
+          <CourseQuizzes courseId={course?.id} userId={user?.id} />
           {assessments.length > 0 && <section className="course-assignment-panel">
             <div className="assignment-heading"><span className="section-kicker">COURSEWORK</span><h2>Practical assignment</h2><p>Complete the task and submit your findings or a shareable link to your workbook.</p></div>
             {assessments.map(assessment => {
