@@ -84,7 +84,7 @@ export default function CourseQuizzes({ courseId, userId }) {
     else {
       const attempt = Array.isArray(data) ? data[0] : data
       setResult(attempt)
-      setAttempts(previous => [attempt, ...previous])
+      setAttempts(previous => [{ ...attempt, id: attempt.attempt_id, quiz_id: selectedQuiz.id }, ...previous])
     }
     setSubmitting(false)
   }
