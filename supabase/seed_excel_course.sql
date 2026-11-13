@@ -134,3 +134,29 @@ begin
 
   raise notice 'Excel pilot curriculum seeded: 8 modules and 32 lessons.';
 end $$;
+
+
+-- Create the Excel capstone assignment as a draft. Administrators publish it
+-- from the Assessments section after reviewing the instructions.
+do $$
+declare
+  v_course_id uuid;
+begin
+  select id into v_course_id from public.courses
+  where slug = 'excel-for-data-analysis';
+
+  if v_course_id is not null and not exists (
+    select 1 from public.assessments
+    where course_id = v_course_id and title = 'Excel Education Data Analysis Project'
+  ) then
+    insert into public.assessments
+      (course_id, title, instructions, total_marks, is_published)
+    values (
+      v_course_id,
+      'Excel Education Data Analysis Project',
+      E'## Project scenario\nYou are supporting a fictional education programme and have been given a synthetic dataset of 50 learner records. The data contains missing values and a duplicated record.\n\n## Your tasks\n1. Download the Excel practice CSV from the course lesson resources.\n2. Save an untouched copy, then create a clean working sheet.\n3. Identify and document duplicate records, missing values and inconsistent entries.\n4. Calculate attendance rate for each learner (Attendance_Days / Enrolled_Days).\n5. Calculate the average assessment score and compare results by school and grade.\n6. Create at least one PivotTable and two suitable charts.\n7. Build a one-page dashboard showing key indicators and findings.\n8. Write a 300–500 word summary explaining three findings, one data-quality limitation and one recommendation.\n\n## Submit\nSubmit a short explanation of your process and findings, and provide a shareable link to your completed Excel workbook. Ensure the link permissions allow your instructor to view the file. Do not include personal information; the dataset is entirely fictional.\n\n## Assessment criteria (100 marks)\nData cleaning and documentation: 20; formulas and calculations: 20; PivotTable and analysis: 20; charts and dashboard: 20; interpretation and recommendations: 20.',
+      100,
+      false
+    );
+  end if;
+end $$;
