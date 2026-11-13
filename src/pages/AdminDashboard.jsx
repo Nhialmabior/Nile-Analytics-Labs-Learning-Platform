@@ -16,7 +16,8 @@ const sections = [
   ['reports', 'Reports', BarChart3]
 ]
 
-const blankCourse = { title: '', slug: '', category: 'Excel', description: '', level: 'Beginner', duration: '6 weeks', is_published: false }\nconst blankAssessment = { course_id: '', title: '', instructions: '', total_marks: 100, is_published: false }
+const blankCourse = { title: '', slug: '', category: 'Excel', description: '', level: 'Beginner', duration: '6 weeks', is_published: false }
+const blankAssessment = { course_id: '', title: '', instructions: '', total_marks: 100, is_published: false }
 
 function StatCard({ icon: Icon, label, value, note }) {
   return <article className="admin-stat"><span className="admin-stat-icon"><Icon size={19} /></span><div><small>{label}</small><strong>{value ?? '—'}</strong><span>{note}</span></div></article>
@@ -37,7 +38,9 @@ export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(blankCourse)
-  const [saving, setSaving] = useState(false)\n  const [showAssessmentForm, setShowAssessmentForm] = useState(false)\n  const [assessmentForm, setAssessmentForm] = useState(blankAssessment)
+  const [saving, setSaving] = useState(false)
+  const [showAssessmentForm, setShowAssessmentForm] = useState(false)
+  const [assessmentForm, setAssessmentForm] = useState(blankAssessment)
 
   const loadData = useCallback(async () => {
     setLoading(true)
