@@ -16,7 +16,7 @@ const sections = [
   ['reports', 'Reports', BarChart3]
 ]
 
-const blankCourse = { title: '', slug: '', category: 'Excel', description: '', level: 'Beginner', duration: '6 weeks', is_published: false }
+const blankCourse = { title: '', slug: '', category: 'Excel', description: '', level: 'Beginner', duration: '6 weeks', is_published: false }\nconst blankAssessment = { course_id: '', title: '', instructions: '', total_marks: 100, is_published: false }
 
 function StatCard({ icon: Icon, label, value, note }) {
   return <article className="admin-stat"><span className="admin-stat-icon"><Icon size={19} /></span><div><small>{label}</small><strong>{value ?? '—'}</strong><span>{note}</span></div></article>
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(blankCourse)
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false)\n  const [showAssessmentForm, setShowAssessmentForm] = useState(false)\n  const [assessmentForm, setAssessmentForm] = useState(blankAssessment)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -145,6 +145,45 @@ export default function AdminDashboard() {
     }
   }
 
+  function startAssessment() {
+    setAssessmentForm({ ...blankAssessment, course_id: courses.find(item => item.is_published)?.id || courses[0]?.id || '' })
+    setShowAssessmentForm(true)
+    setNotice('')
+    setError('')
+  }
+
+  async function saveAssessment(event) {
+    event.preventDefault()
+    setSaving(true)
+    setError('')
+    setNotice('')
+    const { error: saveError } = await supabase.from('assessments').insert({
+      ...assessmentForm,
+      title: assessmentForm.title.trim(),
+      instructions: assessmentForm.instructions.trim(),
+      total_marks: Number(assessmentForm.total_marks),
+      is_published: false
+    })
+    if (saveError) setError(saveError.message)
+    else {
+      setNotice('Assessment saved as a draft. Publish it when the instructions and resources are ready.')
+      setShowAssessmentForm(false)
+      setAssessmentForm(blankAssessment)
+      await loadData()
+    }
+    setSaving(false)
+  }
+
+  async function toggleAssessment(item) {
+    const { error: updateError } = await supabase.from('assessments')
+      .update({ is_published: !item.is_published }).eq('id', item.id)
+    if (updateError) setError(updateError.message)
+    else {
+      setNotice(item.is_published ? 'Assessment unpublished.' : 'Assessment published for learners.')
+      await loadData()
+    }
+  }
+
   const filteredCourses = courses.filter(course => (course.title + ' ' + course.category).toLowerCase().includes(search.toLowerCase()))
   const filteredLearners = learners.filter(person => (person.full_name || '').toLowerCase().includes(search.toLowerCase()) || person.id.toLowerCase().includes(search.toLowerCase()))
 
@@ -208,7 +247,17 @@ export default function AdminDashboard() {
 
           {section === 'learners' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{learners.length}</span></h2><p>Learner profiles registered on the platform.</p></div><div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search learners" /></div></div>{loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New learner registrations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ROLE</th></tr></thead><tbody>{filteredLearners.map(person => <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td><span className="admin-status learner">Learner</span></td></tr>)}</tbody></table></div>}</div>}
 
-          {section === 'assessments' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>Assessments <span className="admin-count">{assessments.length}</span></h2><p>Assessment records and publication status.</p></div></div>{loading ? <p className="admin-muted">Loading assessments…</p> : assessments.length === 0 ? <div className="admin-empty"><ClipboardList size={28} /><strong>No assessments created</strong><span>Assessment creation and grading will be added in the next build stage.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ASSESSMENT</th><th>COURSE</th><th>STATUS</th><th>CREATED</th></tr></thead><tbody>{assessments.map(item => <tr key={item.id}><td><strong>{item.title}</strong></td><td>{item.courses?.title || 'Course'}</td><td><span className={item.is_published ? 'admin-status published' : 'admin-status draft'}>{item.is_published ? 'Published' : 'Draft'}</span></td><td>{new Date(item.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div>}</div>}
+          {section === 'assessments' && <div className="admin-panel">
+            <div className="admin-panel-heading"><div><h2>Assessments <span className="admin-count">{assessments.length}</span></h2><p>Create assignments, publish instructions and review learner submissions.</p></div><button className="btn btn-primary" type="button" onClick={startAssessment}><Plus size={16}/> Create assessment</button></div>
+            {showAssessmentForm && <form className="admin-course-form" onSubmit={saveAssessment}>
+              <label>Course<select required value={assessmentForm.course_id} onChange={event => setAssessmentForm(current => ({...current, course_id:event.target.value}))}><option value="">Select a course</option>{courses.map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
+              <label>Assessment title<input required value={assessmentForm.title} onChange={event => setAssessmentForm(current => ({...current, title:event.target.value}))} placeholder="Excel data analysis project"/></label>
+              <label>Instructions<textarea required rows="5" value={assessmentForm.instructions} onChange={event => setAssessmentForm(current => ({...current, instructions:event.target.value}))} placeholder="Describe the task, expected deliverables and submission requirements."/></label>
+              <label>Total marks<input type="number" min="1" step="1" required value={assessmentForm.total_marks} onChange={event => setAssessmentForm(current => ({...current, total_marks:event.target.value}))}/></label>
+              <div className="admin-form-actions"><button className="btn btn-primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save as draft'}</button><button className="btn btn-ghost" type="button" onClick={() => setShowAssessmentForm(false)}>Cancel</button></div>
+            </form>}
+            {loading ? <p className="admin-muted">Loading assessments…</p> : assessments.length === 0 ? <div className="admin-empty"><ClipboardList size={28}/><strong>No assessments created</strong><span>Create a practical assignment for one of your courses.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ASSESSMENT</th><th>COURSE</th><th>STATUS</th><th>CREATED</th><th>ACTION</th></tr></thead><tbody>{assessments.map(item => <tr key={item.id}><td><strong>{item.title}</strong><small>{item.total_marks{'}'} marks</small></td><td>{item.courses?.title || 'Course'}</td><td><span className={item.is_published ? 'admin-status published' : 'admin-status draft'}>{item.is_published ? 'Published' : 'Draft'}</span></td><td>{new Date(item.created_at).toLocaleDateString()}</td><td><button className="btn btn-ghost" type="button" onClick={() => toggleAssessment(item)}>{item.is_published ? <><EyeOff size={14}/> Unpublish</> : <><Eye size={14}/> Publish</>}</button></td></tr>)}</tbody></table></div>}
+          </div>}
 
           {section === 'reports' && <div className="admin-stats-grid"><StatCard icon={Users} label="Learners" value={stats.learners} note="Registered learner profiles" /><StatCard icon={BookOpen} label="Published courses" value={stats.published} note="Visible to learners" /><StatCard icon={GraduationCap} label="Enrollments" value={stats.enrollments} note="All course registrations" /><StatCard icon={FileCheck2} label="Submissions" value={stats.submissions} note="Assessment work submitted" /><div className="admin-panel admin-report-note"><BarChart3 size={23} /><strong>Performance reports are being prepared</strong><span>Course completion rates, learner performance and assessment trends will be calculated once learning activity data is available.</span></div></div>}
           <footer className="admin-footer">Nile Analytics Labs · Analyze today, solve tomorrow.</footer>
