@@ -75,19 +75,22 @@ export const courses = [
     title: 'SPSS for Data Analysis',
     category: 'SPSS',
     level: 'Beginner to Intermediate',
-    duration: '6 weeks',
-    lessons: 34,
+    duration: '8 weeks',
+    lessons: 40,
     students: 114,
     rating: 4.8,
     accent: 'spss',
     icon: 'S',
     description: 'Develop practical SPSS skills for survey data, descriptive statistics and inferential analysis.',
     modules: [
-      { title: 'SPSS Fundamentals', lessons: 6 },
-      { title: 'Data Entry & Cleaning', lessons: 7 },
-      { title: 'Descriptive Analysis', lessons: 7 },
-      { title: 'Inferential Statistics', lessons: 8 },
-      { title: 'Research Analysis Project', lessons: 6 }
+      { title: 'SPSS Foundations and Research Workflow', lessons: 5 },
+      { title: 'Data Entry, Importing and Variable Setup', lessons: 5 },
+      { title: 'Data Cleaning and Data Quality', lessons: 5 },
+      { title: 'Descriptive Statistics and Data Exploration', lessons: 5 },
+      { title: 'Data Transformation and Management', lessons: 5 },
+      { title: 'Inferential Statistics and Hypothesis Testing', lessons: 5 },
+      { title: 'Regression and Advanced Analysis', lessons: 5 },
+      { title: 'Research Reporting and Applied SPSS Project', lessons: 5 }
     ]
   }
 ]
