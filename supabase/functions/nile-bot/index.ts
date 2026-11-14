@@ -1,28 +1,10 @@
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createSupabaseContext } from "npm:@supabase/server@1";
 
 const allowedOrigins = new Set([
   "https://nhialmabior.github.io",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 ]);
-
-function getConfiguredKey(jsonName: string, legacyName: string): string {
-  const raw = Deno.env.get(jsonName);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === "object") {
-        const values = Object.values(parsed);
-        const selected = parsed.default ?? values[0];
-        if (typeof selected === "string") return selected;
-      }
-    } catch {
-      // Some older Supabase projects expose a single key instead of a JSON map.
-      return raw;
-    }
-  }
-  return Deno.env.get(legacyName) ?? "";
-}
 
 function jsonResponse(
   body: Record<string, unknown>,
@@ -124,34 +106,25 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const authorization = req.headers.get("Authorization") ?? "";
-    if (!authorization.startsWith("Bearer ")) {
-      return jsonResponse({ error: "Please sign in to use Nile Bot." }, 401, corsHeaders);
+    const { data: context, error: contextError } = await createSupabaseContext(req, { auth: "user" });
+    if (contextError || !context?.userClaims) {
+      return jsonResponse(
+        { error: contextError?.message || "Please sign in to use Nile Bot." },
+        contextError?.status || 401,
+        corsHeaders,
+      );
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const publishableKey = getConfiguredKey("SUPABASE_PUBLISHABLE_KEYS", "SUPABASE_ANON_KEY");
-    const serviceRoleKey = getConfiguredKey("SUPABASE_SECRET_KEYS", "SUPABASE_SERVICE_ROLE_KEY");
+    const userClient = context.supabase;
+    const adminClient = context.supabaseAdmin;
+    const userId = context.userClaims.id || context.userClaims.sub;
     const openAiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
 
-    if (!supabaseUrl || !publishableKey || !serviceRoleKey) {
-      console.error("Nile Bot Supabase environment configuration is incomplete.");
-      return jsonResponse({ error: "Nile Bot is not fully configured yet." }, 503, corsHeaders);
+    if (typeof userId !== "string" || !userId) {
+      return jsonResponse({ error: "Your session could not be verified. Please sign in again." }, 401, corsHeaders);
     }
     if (!openAiKey) {
       return jsonResponse({ error: "Nile Bot's AI service has not been configured yet." }, 503, corsHeaders);
-    }
-
-    const userClient = createClient(supabaseUrl, publishableKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-      global: { headers: { Authorization: authorization } },
-    });
-    const accessToken = authorization.slice('Bearer '.length).trim();
-    const { data: userData, error: authError } = await userClient.auth.getUser(accessToken);
-    const user = userData?.user;
-
-    if (authError || !user) {
-      return jsonResponse({ error: "Your session is invalid or has expired. Please sign in again." }, 401, corsHeaders);
     }
 
     const rawBody = await req.text();
@@ -180,13 +153,9 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: "The conversation identifier is invalid." }, 400, corsHeaders);
     }
 
-    const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
-
     const { data: quotaAllowed, error: quotaError } = await adminClient.rpc(
       "consume_nile_bot_request",
-      { p_user_id: user.id, p_daily_limit: 25 },
+      { p_user_id: userId, p_daily_limit: 25 },
     );
 
     if (quotaError) {
@@ -205,7 +174,7 @@ Deno.serve(async (req: Request) => {
         .from("nile_bot_conversations")
         .select("id, user_id, course_slug")
         .eq("id", conversationId)
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (conversationError || !existingConversation) {
@@ -237,7 +206,7 @@ Deno.serve(async (req: Request) => {
         .from("nile_bot_messages")
         .select("role, content")
         .eq("conversation_id", conversationId)
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(10);
 
@@ -312,7 +281,7 @@ Deno.serve(async (req: Request) => {
       const { data: createdConversation, error: createError } = await adminClient
         .from("nile_bot_conversations")
         .insert({
-          user_id: user.id,
+          user_id: userId,
           title: message.slice(0, 72),
           course_slug: conversationCourse,
         })
@@ -330,7 +299,7 @@ Deno.serve(async (req: Request) => {
       .from("nile_bot_messages")
       .insert({
         conversation_id: conversationId,
-        user_id: user.id,
+        user_id: userId,
         role: "user",
         content: message,
       });
@@ -344,7 +313,7 @@ Deno.serve(async (req: Request) => {
       .from("nile_bot_messages")
       .insert({
         conversation_id: conversationId,
-        user_id: user.id,
+        user_id: userId,
         role: "assistant",
         content: answer,
       });
@@ -358,7 +327,7 @@ Deno.serve(async (req: Request) => {
       .from("nile_bot_conversations")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversationId)
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
 
     return jsonResponse({ conversationId, answer, sources, model }, 200, corsHeaders);
   } catch (error) {
