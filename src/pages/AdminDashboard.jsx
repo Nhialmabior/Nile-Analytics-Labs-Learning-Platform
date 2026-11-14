@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut,
-  Plus, RefreshCw, Search, GraduationCap, FileCheck2, Eye, EyeOff,
+  Plus, RefreshCw, Search, GraduationCap, TrendingUp, FileCheck2, Eye, EyeOff,
   Pencil, Trash2, X, AlertCircle, CheckCircle2
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -32,6 +32,7 @@ export default function AdminDashboard() {
   const [learners, setLearners] = useState([])
   const [assessments, setAssessments] = useState([])
   const [submissions, setSubmissions] = useState([])
+  const [completionRows, setCompletionRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -46,15 +47,18 @@ export default function AdminDashboard() {
   const loadData = useCallback(async () => {
     setLoading(true)
     setError('')
-    const [profileRes, courseRes, enrollmentRes, assessmentRes, submissionCountRes, submissionRowsRes] = await Promise.all([
+    const [profileRes, courseRes, enrollmentRes, assessmentRes, submissionCountRes, submissionRowsRes, enrollmentRowsRes, moduleRowsRes, progressRowsRes] = await Promise.all([
       supabase.from('profiles').select('id, full_name, role, created_at').order('created_at', { ascending: false }),
       supabase.from('courses').select('*').order('created_at', { ascending: false }),
       supabase.from('enrollments').select('id', { count: 'exact', head: true }),
       supabase.from('assessments').select('id, course_id, title, total_marks, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
       supabase.from('assessment_submissions').select('id', { count: 'exact', head: true }),
-      supabase.from('assessment_submissions').select('id, assessment_id, learner_id, submission_text, resource_url, score, feedback, graded_at, submitted_at').order('submitted_at', { ascending: false })
+      supabase.from('assessment_submissions').select('id, assessment_id, learner_id, submission_text, resource_url, score, feedback, graded_at, submitted_at').order('submitted_at', { ascending: false }),
+      supabase.from('enrollments').select('id, learner_id, course_id, status, enrolled_at, courses(title, category)').order('enrolled_at', { ascending: false }),
+      supabase.from('course_modules').select('id, course_id, lessons(id, is_published)'),
+      supabase.from('lesson_progress').select('learner_id, lesson_id')
     ])
-    const firstError = profileRes.error || courseRes.error || enrollmentRes.error || assessmentRes.error || submissionCountRes.error || submissionRowsRes.error
+    const firstError = profileRes.error || courseRes.error || enrollmentRes.error || assessmentRes.error || submissionCountRes.error || submissionRowsRes.error || enrollmentRowsRes.error || moduleRowsRes.error || progressRowsRes.error
     if (firstError) {
       setError(firstError.message.includes('does not exist') || firstError.message.includes('schema cache')
         ? 'The LMS database has not been installed yet. Run supabase/lms_schema.sql in your Supabase SQL Editor, then refresh this page.'
@@ -67,6 +71,34 @@ export default function AdminDashboard() {
       setCourses(courseRows)
       setAssessments(assessmentRows)
       setSubmissions(submissionRowsRes.data || [])
+
+      const publishedLessonIdsByCourse = new Map()
+      for (const module of moduleRowsRes.data || []) {
+        const publishedLessonIds = (module.lessons || []).filter(lesson => lesson.is_published).map(lesson => lesson.id)
+        const existing = publishedLessonIdsByCourse.get(module.course_id) || []
+        publishedLessonIdsByCourse.set(module.course_id, [...existing, ...publishedLessonIds])
+      }
+      const completedLessonKeys = new Set((progressRowsRes.data || []).map(row => row.learner_id + ':' + row.lesson_id))
+      const learnerNames = new Map(people.map(person => [person.id, person.full_name || 'Learner']))
+      const completionData = (enrollmentRowsRes.data || [])
+        .filter(row => row.status !== 'cancelled')
+        .map(row => {
+          const lessonIds = publishedLessonIdsByCourse.get(row.course_id) || []
+          const completedLessons = lessonIds.filter(lessonId => completedLessonKeys.has(row.learner_id + ':' + lessonId)).length
+          return {
+            id: row.id,
+            learnerId: row.learner_id,
+            learnerName: learnerNames.get(row.learner_id) || 'Learner',
+            courseId: row.course_id,
+            courseTitle: row.courses?.title || 'Course',
+            category: row.courses?.category || '',
+            status: row.status,
+            lessonCount: lessonIds.length,
+            completedLessons,
+            progress: lessonIds.length ? Math.round((completedLessons / lessonIds.length) * 100) : null
+          }
+        })
+      setCompletionRows(completionData)
       setStats({
         learners: people.filter(person => person.role !== 'admin').length,
         courses: courseRows.length,
@@ -250,6 +282,26 @@ export default function AdminDashboard() {
     }
   })
 
+  const measurableCompletionRows = completionRows.filter(row => row.progress !== null)
+  const completedCourseEnrollments = measurableCompletionRows.filter(row => row.progress === 100).length
+  const averageCourseCompletion = measurableCompletionRows.length
+    ? measurableCompletionRows.reduce((sum, row) => sum + row.progress, 0) / measurableCompletionRows.length
+    : null
+
+  const courseCompletionReports = courses.map(course => {
+    const rows = completionRows.filter(row => row.courseId === course.id)
+    const measurable = rows.filter(row => row.progress !== null)
+    return {
+      ...course,
+      enrollmentCount: rows.length,
+      completedCount: measurable.filter(row => row.progress === 100).length,
+      averageProgress: measurable.length
+        ? measurable.reduce((sum, row) => sum + row.progress, 0) / measurable.length
+        : null,
+      lessonCount: rows[0]?.lessonCount || 0
+    }
+  }).filter(course => course.enrollmentCount > 0)
+
   const courseReports = courses.map(course => {
     const courseAssessmentIds = new Set(assessments.filter(item => item.course_id === course.id).map(item => item.id))
     const rows = submissions.filter(item => courseAssessmentIds.has(item.assessment_id))
@@ -364,6 +416,16 @@ export default function AdminDashboard() {
               <StatCard icon={ClipboardList} label="Awaiting marking" value={pendingSubmissions.length} note="Not yet graded" />
               <StatCard icon={CheckCircle2} label="Graded submissions" value={gradedSubmissions.length} note="Marks recorded by an administrator" />
               <StatCard icon={BarChart3} label="Average graded score" value={overallAverage === null ? '—' : overallAverage.toFixed(1) + '%'} note="Mean percentage across graded work" />
+            </div>
+            <div className="admin-stats-grid admin-completion-stats">
+              <StatCard icon={GraduationCap} label="Non-cancelled enrolments" value={completionRows.length} note="Active or completed course registrations" />
+              <StatCard icon={CheckCircle2} label="Completed enrolments" value={completedCourseEnrollments} note="All published lessons completed" />
+              <StatCard icon={TrendingUp} label="Average course progress" value={averageCourseCompletion === null ? '—' : averageCourseCompletion.toFixed(1) + '%'} note="Across courses with published lessons" />
+              <StatCard icon={BookOpen} label="Enrolments without lessons" value={completionRows.filter(row => row.progress === null).length} note="Course content not yet published" />
+            </div>
+            <div className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Course completion</h2><p>Progress is calculated from each learner’s completed published lessons. Courses without published lessons are excluded from averages.</p></div></div>
+              {loading ? <p className="admin-muted">Loading completion data…</p> : courseCompletionReports.length === 0 ? <div className="admin-empty"><GraduationCap size={28}/><strong>No enrolment data yet</strong><span>Course completion insights will appear when learners enrol and published lessons are available.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>COURSE</th><th>ENROLLED</th><th>COMPLETED</th><th>AVERAGE PROGRESS</th><th>LESSONS</th></tr></thead><tbody>{courseCompletionReports.map(course => <tr key={course.id}><td><strong>{course.title}</strong><small>{course.category}</small></td><td>{course.enrollmentCount}</td><td>{course.completedCount}</td><td>{course.averageProgress === null ? '—' : <div className="admin-completion-cell"><strong>{course.averageProgress.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: course.averageProgress + '%' }}/></div></div>}</td><td>{course.lessonCount || 'Not published'}</td></tr>)}</tbody></table></div>}
             </div>
             <div className="admin-panel admin-report-note">
               <AlertCircle size={21} />
