@@ -150,6 +150,12 @@ STABLE
 SECURITY INVOKER
 SET search_path = ''
 AS $function$
+  WITH query_data AS (
+    SELECT websearch_to_tsquery(
+      'english',
+      left(coalesce(p_query, ''), 500)
+    ) AS query
+  )
   SELECT
     c.title::text,
     c.slug::text,
@@ -160,18 +166,32 @@ AS $function$
   FROM public.lessons l
   JOIN public.course_modules m ON m.id = l.module_id
   JOIN public.courses c ON c.id = m.course_id
+  CROSS JOIN query_data q
   WHERE l.is_published = true
     AND c.is_published = true
     AND (p_course_slug IS NULL OR c.slug = p_course_slug)
-    AND l.search_vector @@ websearch_to_tsquery(
-      'english',
-      left(coalesce(p_query, ''), 500)
+    AND (
+      l.search_vector @@ q.query
+      OR (
+        p_course_slug IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM public.lessons matched_l
+          JOIN public.course_modules matched_m ON matched_m.id = matched_l.module_id
+          JOIN public.courses matched_c ON matched_c.id = matched_m.course_id
+          WHERE matched_c.slug = p_course_slug
+            AND matched_l.is_published = true
+            AND matched_c.is_published = true
+            AND matched_l.search_vector @@ q.query
+        )
+      )
     )
   ORDER BY
-    ts_rank_cd(
-      l.search_vector,
-      websearch_to_tsquery('english', left(coalesce(p_query, ''), 500))
-    ) DESC,
+    CASE
+      WHEN l.search_vector @@ q.query
+      THEN ts_rank_cd(l.search_vector, q.query)
+      ELSE 0
+    END DESC,
     m.sort_order ASC,
     l.sort_order ASC
   LIMIT CASE
