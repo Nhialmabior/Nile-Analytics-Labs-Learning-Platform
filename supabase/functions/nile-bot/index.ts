@@ -146,7 +146,8 @@ Deno.serve(async (req: Request) => {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { headers: { Authorization: authorization } },
     });
-    const { data: userData, error: authError } = await userClient.auth.getUser();
+    const accessToken = authorization.slice('Bearer '.length).trim();
+    const { data: userData, error: authError } = await userClient.auth.getUser(accessToken);
     const user = userData?.user;
 
     if (authError || !user) {
