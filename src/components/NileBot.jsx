@@ -100,7 +100,7 @@ export default function NileBot() {
       .from('nile_bot_messages')
       .select('id, role, content, created_at')
       .eq('conversation_id', conversation.id)
-      .order('created_at', { ascending: true })
+      .order('created_at', { ascending: false })
       .limit(60)
 
     if (error) {
@@ -108,7 +108,7 @@ export default function NileBot() {
     } else {
       setConversationId(conversation.id)
       setCourseSlug(conversation.course_slug || '')
-      setMessages(data || [])
+      setMessages((data || []).reverse())
       setHistoryOpen(false)
     }
     setLoadingHistory(false)
