@@ -15,12 +15,22 @@ const suggestions = [
   'Help me understand a regression result.',
 ]
 
+function MessageContent({ content }) {
+  const parts = content.split(/(```[\\s\\S]*?```)/g)
+  return parts.map((part, index) => {
+    const code = part.match(/^```[a-zA-Z0-9_+.-]*\\s*\\n([\\s\\S]*?)```$/)
+    return code
+      ? <pre key={index}><code>{code[1].replace(/\\n$/, '')}</code></pre>
+      : <span key={index}>{part}</span>
+  })
+}
+
 function MessageBubble({ message }) {
   return (
     <article className={`nile-message ${message.role === 'user' ? 'nile-message-user' : 'nile-message-assistant'}`}>
       {message.role === 'assistant' && <span className="nile-message-avatar"><Bot size={15} /></span>}
       <div className="nile-message-body">
-        <div className="nile-message-content">{message.content}</div>
+        <div className="nile-message-content"><MessageContent content={message.content} /></div>
         {message.sources?.length > 0 && (
           <div className="nile-message-sources">
             <span><BookOpen size={12} /> Course references</span>
