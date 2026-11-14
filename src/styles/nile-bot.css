@@ -62,3 +62,6 @@
 .nile-bot-history-empty{padding:25px 10px;text-align:center;color:#81949c;font-size:10px}
 @media(max-width:600px){.nile-bot-launcher{right:15px;bottom:15px;padding:12px 15px}.nile-bot-panel{right:8px;bottom:72px;width:calc(100vw - 16px);height:min(690px,calc(100dvh - 88px));border-radius:15px}.nile-bot-header{height:65px}.nile-bot-course-select{padding:10px 12px}.nile-bot-chat{padding:13px 11px}.nile-bot-message-body{max-width:91%}}
 @media(prefers-reduced-motion:reduce){.nile-bot-launcher,.nile-bot-thinking span,.nile-bot-spin{animation:none;transition:none}}
+
+.nile-message-content pre{max-width:100%;overflow-x:auto;margin:10px 0 2px;padding:11px 12px;border-radius:8px;background:#082b3c;color:#e6f3f6;font:10px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre}
+.nile-message-content pre code{font:inherit}
