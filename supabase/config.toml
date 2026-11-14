@@ -1,0 +1,2 @@
+[functions.nile-bot]
+verify_jwt = true
