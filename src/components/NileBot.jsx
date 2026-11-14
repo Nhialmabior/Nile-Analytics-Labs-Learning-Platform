@@ -283,7 +283,7 @@ export default function NileBot() {
                 />
                 <button type="submit" disabled={!draft.trim() || sending} aria-label="Send message"><Send size={18} /></button>
               </form>
-              <footer className="nile-bot-disclaimer">AI can make mistakes. Verify important statistical and research guidance.</footer>
+              <footer className="nile-bot-disclaimer">Chats are saved to your account and sent to OpenAI to generate replies. Don't share secrets. AI can make mistakes.</footer>
             </>
           )}
         </section>
