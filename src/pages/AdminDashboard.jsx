@@ -50,7 +50,7 @@ export default function AdminDashboard() {
       supabase.from('profiles').select('id, full_name, role, created_at').order('created_at', { ascending: false }),
       supabase.from('courses').select('*').order('created_at', { ascending: false }),
       supabase.from('enrollments').select('id', { count: 'exact', head: true }),
-      supabase.from('assessments').select('id, title, total_marks, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
+      supabase.from('assessments').select('id, course_id, title, total_marks, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
       supabase.from('assessment_submissions').select('id', { count: 'exact', head: true }),
       supabase.from('assessment_submissions').select('id, assessment_id, learner_id, submission_text, resource_url, score, feedback, graded_at, submitted_at').order('submitted_at', { ascending: false })
     ])
@@ -222,6 +222,55 @@ export default function AdminDashboard() {
   const filteredCourses = courses.filter(course => (course.title + ' ' + course.category).toLowerCase().includes(search.toLowerCase()))
   const filteredLearners = learners.filter(person => (person.full_name || '').toLowerCase().includes(search.toLowerCase()) || person.id.toLowerCase().includes(search.toLowerCase()))
 
+  // Report only recorded assessment activity. Unmarked work is never treated as a zero.
+  const gradedSubmissions = submissions.filter(item => item.graded_at && item.score !== null && item.score !== undefined)
+  const pendingSubmissions = submissions.filter(item => !item.graded_at)
+  const gradedPercentages = gradedSubmissions.map(item => {
+    const assessment = assessments.find(row => row.id === item.assessment_id)
+    return assessment && Number(assessment.total_marks) > 0
+      ? (Number(item.score) / Number(assessment.total_marks)) * 100
+      : null
+  }).filter(value => value !== null)
+  const overallAverage = gradedPercentages.length
+    ? gradedPercentages.reduce((sum, value) => sum + value, 0) / gradedPercentages.length
+    : null
+
+  const assessmentReports = assessments.map(assessment => {
+    const rows = submissions.filter(item => item.assessment_id === assessment.id)
+    const graded = rows.filter(item => item.graded_at && item.score !== null && item.score !== undefined)
+    const average = graded.length && Number(assessment.total_marks) > 0
+      ? graded.reduce((sum, item) => sum + (Number(item.score) / Number(assessment.total_marks)) * 100, 0) / graded.length
+      : null
+    return {
+      ...assessment,
+      submissionCount: rows.length,
+      gradedCount: graded.length,
+      pendingCount: rows.filter(item => !item.graded_at).length,
+      averagePercentage: average
+    }
+  })
+
+  const courseReports = courses.map(course => {
+    const courseAssessmentIds = new Set(assessments.filter(item => item.course_id === course.id).map(item => item.id))
+    const rows = submissions.filter(item => courseAssessmentIds.has(item.assessment_id))
+    const graded = rows.filter(item => item.graded_at && item.score !== null && item.score !== undefined)
+    const percentages = graded.map(item => {
+      const assessment = assessments.find(row => row.id === item.assessment_id)
+      return assessment && Number(assessment.total_marks) > 0
+        ? (Number(item.score) / Number(assessment.total_marks)) * 100
+        : null
+    }).filter(value => value !== null)
+    return {
+      ...course,
+      assessmentCount: courseAssessmentIds.size,
+      submissionCount: rows.length,
+      gradedCount: graded.length,
+      averagePercentage: percentages.length
+        ? percentages.reduce((sum, value) => sum + value, 0) / percentages.length
+        : null
+    }
+  }).filter(course => course.assessmentCount > 0)
+
   return (
     <div className="admin-shell">
       <aside className="admin-sidebar">
@@ -309,7 +358,27 @@ export default function AdminDashboard() {
             })}</tbody></table></div>}
           </div>}
 
-          {section === 'reports' && <div className="admin-stats-grid"><StatCard icon={Users} label="Learners" value={stats.learners} note="Registered learner profiles" /><StatCard icon={BookOpen} label="Published courses" value={stats.published} note="Visible to learners" /><StatCard icon={GraduationCap} label="Enrollments" value={stats.enrollments} note="All course registrations" /><StatCard icon={FileCheck2} label="Submissions" value={stats.submissions} note="Assessment work submitted" /><div className="admin-panel admin-report-note"><BarChart3 size={23} /><strong>Performance reports are being prepared</strong><span>Course completion rates, learner performance and assessment trends will be calculated once learning activity data is available.</span></div></div>}
+          {section === 'reports' && <>
+            <div className="admin-stats-grid">
+              <StatCard icon={FileCheck2} label="Submissions received" value={stats.submissions} note="Assessment work submitted" />
+              <StatCard icon={ClipboardList} label="Awaiting marking" value={pendingSubmissions.length} note="Not yet graded" />
+              <StatCard icon={CheckCircle2} label="Graded submissions" value={gradedSubmissions.length} note="Marks recorded by an administrator" />
+              <StatCard icon={BarChart3} label="Average graded score" value={overallAverage === null ? '—' : overallAverage.toFixed(1) + '%'} note="Mean percentage across graded work" />
+            </div>
+            <div className="admin-panel admin-report-note">
+              <AlertCircle size={21} />
+              <strong>Development data only</strong>
+              <span>These figures reflect the records currently stored in Supabase, including demo or test records. Do not use them as official institutional results until verified real learner data is loaded.</span>
+            </div>
+            <div className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Assessment performance</h2><p>Submission and marking activity by assessment. Unmarked submissions are excluded from averages.</p></div></div>
+              {loading ? <p className="admin-muted">Loading assessment results…</p> : assessmentReports.length === 0 ? <div className="admin-empty"><BarChart3 size={28}/><strong>No assessment data yet</strong><span>Create and publish an assessment, then review learner submissions to begin building reports.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ASSESSMENT</th><th>COURSE</th><th>SUBMISSIONS</th><th>GRADED</th><th>AWAITING</th><th>AVERAGE SCORE</th></tr></thead><tbody>{assessmentReports.map(item => <tr key={item.id}><td><strong>{item.title}</strong><small>{item.total_marks} total marks</small></td><td>{item.courses?.title || 'Course'}</td><td>{item.submissionCount}</td><td>{item.gradedCount}</td><td>{item.pendingCount}</td><td><strong>{item.averagePercentage === null ? '—' : item.averagePercentage.toFixed(1) + '%'}</strong></td></tr>)}</tbody></table></div>}
+            </div>
+            <div className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Course performance summary</h2><p>Aggregated from assessments attached to each course.</p></div></div>
+              {courseReports.length === 0 ? <p className="admin-muted">No courses have assessment records yet.</p> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>COURSE</th><th>ASSESSMENTS</th><th>SUBMISSIONS</th><th>GRADED</th><th>AVERAGE SCORE</th></tr></thead><tbody>{courseReports.map(course => <tr key={course.id}><td><strong>{course.title}</strong><small>{course.category}</small></td><td>{course.assessmentCount}</td><td>{course.submissionCount}</td><td>{course.gradedCount}</td><td><strong>{course.averagePercentage === null ? '—' : course.averagePercentage.toFixed(1) + '%'}</strong></td></tr>)}</tbody></table></div>}
+            </div>
+          </>}
           <footer className="admin-footer">Nile Analytics Labs · Analyze today, solve tomorrow.</footer>
         </div>
       </main>
