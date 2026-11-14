@@ -225,11 +225,14 @@ export default function AdminDashboard() {
   // Report only recorded assessment activity. Unmarked work is never treated as a zero.
   const gradedSubmissions = submissions.filter(item => item.graded_at && item.score !== null && item.score !== undefined)
   const pendingSubmissions = submissions.filter(item => !item.graded_at)
-  const overallAverage = gradedSubmissions.length
-    ? gradedSubmissions.reduce((sum, item) => {
-        const assessment = assessments.find(row => row.id === item.assessment_id)
-        return sum + (assessment?.total_marks ? (Number(item.score) / Number(assessment.total_marks)) * 100 : 0)
-      }, 0) / gradedSubmissions.filter(item => assessments.some(row => row.id === item.assessment_id && Number(row.total_marks) > 0)).length
+  const gradedPercentages = gradedSubmissions.map(item => {
+    const assessment = assessments.find(row => row.id === item.assessment_id)
+    return assessment && Number(assessment.total_marks) > 0
+      ? (Number(item.score) / Number(assessment.total_marks)) * 100
+      : null
+  }).filter(value => value !== null)
+  const overallAverage = gradedPercentages.length
+    ? gradedPercentages.reduce((sum, value) => sum + value, 0) / gradedPercentages.length
     : null
 
   const assessmentReports = assessments.map(assessment => {
@@ -362,9 +365,10 @@ export default function AdminDashboard() {
               <StatCard icon={CheckCircle2} label="Graded submissions" value={gradedSubmissions.length} note="Marks recorded by an administrator" />
               <StatCard icon={BarChart3} label="Average graded score" value={overallAverage === null ? '—' : overallAverage.toFixed(1) + '%'} note="Mean percentage across graded work" />
             </div>
-            <div className="admin-alert success">
-              <AlertCircle size={17} />
-              <span>Development report: these figures reflect the records currently stored in Supabase, including demo or test records. Do not use them as official institutional results until verified real learner data is loaded.</span>
+            <div className="admin-panel admin-report-note">
+              <AlertCircle size={21} />
+              <strong>Development data only</strong>
+              <span>These figures reflect the records currently stored in Supabase, including demo or test records. Do not use them as official institutional results until verified real learner data is loaded.</span>
             </div>
             <div className="admin-panel">
               <div className="admin-panel-heading"><div><h2>Assessment performance</h2><p>Submission and marking activity by assessment. Unmarked submissions are excluded from averages.</p></div></div>
