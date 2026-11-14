@@ -47,7 +47,7 @@ function MessageBubble({ message }) {
 }
 
 export default function NileBot() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [courseSlug, setCourseSlug] = useState('')
@@ -257,7 +257,7 @@ export default function NileBot() {
                 {messages.length === 0 ? (
                   <div className="nile-bot-welcome">
                     <span className="nile-bot-welcome-icon"><Bot size={30} /></span>
-                    <h3>Hello{user.user_metadata?.full_name ? `, ${user.user_metadata.full_name.split(/\s+/)[0]}` : ''}!</h3>
+                    <h3>Hello{(profile?.full_name?.trim() || user.user_metadata?.full_name) ? `, ${(profile?.full_name?.trim() || user.user_metadata.full_name).split(/\s+/)[0]}` : ''}!</h3>
                     <p>I'm Nile Bot. Ask me to explain a concept, guide you through a data task, or help you understand code and statistical results.</p>
                     <div className="nile-bot-suggestions">
                       {suggestions.map(item => <button type="button" key={item} onClick={() => sendMessage(item)} disabled={sending}>{item}<span>↗</span></button>)}
