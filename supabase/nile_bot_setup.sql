@@ -37,6 +37,12 @@ REVOKE ALL PRIVILEGES ON TABLE
   public.nile_bot_messages
 FROM PUBLIC, anon, authenticated;
 
+GRANT ALL PRIVILEGES ON TABLE
+  public.nile_bot_conversations,
+  public.nile_bot_messages,
+  public.nile_bot_usage
+TO service_role;
+
 GRANT SELECT ON TABLE
   public.nile_bot_conversations,
   public.nile_bot_messages
