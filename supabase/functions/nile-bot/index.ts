@@ -230,35 +230,28 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    if (!conversationId) {
-      const { data: createdConversation, error: createError } = await adminClient
-        .from("nile_bot_conversations")
-        .insert({
-          user_id: user.id,
-          title: message.slice(0, 72),
-          course_slug: conversationCourse,
-        })
-        .select("id")
-        .single();
+    let history: Array<{ role: "user" | "assistant"; content: string }> = [];
 
-      if (createError || !createdConversation) {
-        console.error("Could not create Nile Bot conversation:", createError?.message);
-        return jsonResponse({ error: "Your conversation could not be started. Please try again." }, 500, corsHeaders);
+    if (conversationId) {
+      const { data: previousMessages, error: historyError } = await adminClient
+        .from("nile_bot_messages")
+        .select("role, content")
+        .eq("conversation_id", conversationId)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (historyError) {
+        console.error("Could not load Nile Bot history:", historyError.message);
+        return jsonResponse({ error: "Your conversation history could not be loaded." }, 500, corsHeaders);
       }
-      conversationId = createdConversation.id;
-    }
 
-    const { data: previousMessages, error: historyError } = await adminClient
-      .from("nile_bot_messages")
-      .select("role, content")
-      .eq("conversation_id", conversationId)
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    if (historyError) {
-      console.error("Could not load Nile Bot history:", historyError.message);
-      return jsonResponse({ error: "Your conversation history could not be loaded." }, 500, corsHeaders);
+      history = (previousMessages ?? [])
+        .reverse()
+        .map((item: { role: "user" | "assistant"; content: string }) => ({
+          role: item.role,
+          content: item.content,
+        }));
     }
 
     const { data: lessonRows, error: lessonError } = await userClient.rpc(
@@ -284,13 +277,6 @@ Deno.serve(async (req: Request) => {
     const courseContext = (lessonRows ?? []).map((row: Record<string, string>, index: number) =>
       `[Source ${index + 1}] Course: ${row.course_title} | Module: ${row.module_title} | Lesson: ${row.lesson_title}\n${row.lesson_content}`
     ).join("\n\n---\n\n").slice(0, 18000);
-
-    const history = (previousMessages ?? [])
-      .reverse()
-      .map((item: { role: string; content: string }) => ({
-        role: item.role,
-        content: item.content,
-      }));
 
     const model = Deno.env.get("OPENAI_MODEL") || "gpt-6-luna";
     const aiResponse = await fetch("https://api.openai.com/v1/responses", {
@@ -320,6 +306,24 @@ Deno.serve(async (req: Request) => {
     if (!answer) {
       console.error("OpenAI returned no output text.");
       return jsonResponse({ error: "Nile Bot did not return an answer. Please try asking in a different way." }, 502, corsHeaders);
+    }
+
+    if (!conversationId) {
+      const { data: createdConversation, error: createError } = await adminClient
+        .from("nile_bot_conversations")
+        .insert({
+          user_id: user.id,
+          title: message.slice(0, 72),
+          course_slug: conversationCourse,
+        })
+        .select("id")
+        .single();
+
+      if (createError || !createdConversation) {
+        console.error("Could not create Nile Bot conversation:", createError?.message);
+        return jsonResponse({ error: "Your conversation could not be saved. Please try again." }, 500, corsHeaders);
+      }
+      conversationId = createdConversation.id;
     }
 
     const { error: userMessageError } = await adminClient
