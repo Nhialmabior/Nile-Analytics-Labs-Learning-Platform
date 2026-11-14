@@ -418,8 +418,8 @@ export default function AdminDashboard() {
               <StatCard icon={BarChart3} label="Average graded score" value={overallAverage === null ? '—' : overallAverage.toFixed(1) + '%'} note="Mean percentage across graded work" />
             </div>
             <div className="admin-stats-grid admin-completion-stats">
-              <StatCard icon={GraduationCap} label="Active enrolments" value={completionRows.length} note="Non-cancelled course registrations" />
-              <StatCard icon={CheckCircle2} label="Courses completed" value={completedCourseEnrollments} note="All published lessons completed" />
+              <StatCard icon={GraduationCap} label="Non-cancelled enrolments" value={completionRows.length} note="Active or completed course registrations" />
+              <StatCard icon={CheckCircle2} label="Completed enrolments" value={completedCourseEnrollments} note="All published lessons completed" />
               <StatCard icon={TrendingUp} label="Average course progress" value={averageCourseCompletion === null ? '—' : averageCourseCompletion.toFixed(1) + '%'} note="Across courses with published lessons" />
               <StatCard icon={BookOpen} label="Enrolments without lessons" value={completionRows.filter(row => row.progress === null).length} note="Course content not yet published" />
             </div>
