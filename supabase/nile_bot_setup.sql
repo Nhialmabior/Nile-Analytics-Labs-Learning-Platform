@@ -39,8 +39,7 @@ FROM PUBLIC, anon, authenticated;
 
 GRANT ALL PRIVILEGES ON TABLE
   public.nile_bot_conversations,
-  public.nile_bot_messages,
-  public.nile_bot_usage
+  public.nile_bot_messages
 TO service_role;
 
 GRANT SELECT ON TABLE
@@ -82,6 +81,8 @@ ALTER TABLE public.nile_bot_usage ENABLE ROW LEVEL SECURITY;
 
 REVOKE ALL PRIVILEGES ON TABLE public.nile_bot_usage
 FROM PUBLIC, anon, authenticated;
+
+GRANT ALL PRIVILEGES ON TABLE public.nile_bot_usage TO service_role;
 
 CREATE OR REPLACE FUNCTION public.consume_nile_bot_request(
   p_user_id uuid,
