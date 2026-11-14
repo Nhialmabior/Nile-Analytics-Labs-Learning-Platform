@@ -16,11 +16,11 @@ const suggestions = [
 ]
 
 function MessageContent({ content }) {
-  const parts = content.split(/(```[\\s\\S]*?```)/g)
+  const parts = content.split(/(```[\s\S]*?```)/g)
   return parts.map((part, index) => {
-    const code = part.match(/^```[a-zA-Z0-9_+.-]*\\s*\\n([\\s\\S]*?)```$/)
+    const code = part.match(/^```[a-zA-Z0-9_+.-]*\s*\n([\s\S]*?)```$/)
     return code
-      ? <pre key={index}><code>{code[1].replace(/\\n$/, '')}</code></pre>
+      ? <pre key={index}><code>{code[1].replace(/\n$/, '')}</code></pre>
       : <span key={index}>{part}</span>
   })
 }
