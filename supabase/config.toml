@@ -1,2 +1,5 @@
 [functions.nile-bot]
 verify_jwt = true
+
+[functions.redeem-learner-voucher]
+verify_jwt = false

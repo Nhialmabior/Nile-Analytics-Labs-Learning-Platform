@@ -1,60 +1,72 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { UserRound, Mail, LockKeyhole, ArrowRight } from 'lucide-react'
+import { UserRound, Ticket, LockKeyhole, ArrowRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import { learnerLoginEmail } from '../lib/learnerIdentity'
 import { useAuth } from '../context/AuthContext'
 
 export default function Register() {
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
+  const [loginId, setLoginId] = useState('')
+  const [voucher, setVoucher] = useState('')
   const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const { user, loading } = useAuth()
+  const { user, profile, loading } = useAuth()
   const navigate = useNavigate()
 
-  if (!loading && user) return <Navigate to="/dashboard" replace />
+  if (!loading && user && profile?.access_enabled) return <Navigate to="/dashboard" replace />
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
-    setMessage('')
-    if (password.length < 8) {
-      setError('Use a password with at least 8 characters.')
+    if (password.length < 10) {
+      setError('Your password must contain at least 10 characters.')
       return
     }
+    if (password !== confirmPassword) {
+      setError('The passwords do not match.')
+      return
+    }
+
     setSubmitting(true)
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: email.trim(),
-      password,
-      options: { data: { full_name: fullName.trim() } }
+    const { data, error: activationError } = await supabase.functions.invoke('redeem-learner-voucher', {
+      body: { loginId: loginId.trim().toUpperCase(), voucher: voucher.trim().toUpperCase(), password }
+    })
+    if (activationError || data?.error || !data?.success) {
+      setError(data?.error || activationError?.message || 'Account activation failed. Check your details and try again.')
+      setSubmitting(false)
+      return
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: learnerLoginEmail(loginId),
+      password
     })
     setSubmitting(false)
-    if (signUpError) {
-      setError(signUpError.message)
+    if (signInError) {
+      setError('Your account was activated. Please return to Sign In and use your Login ID and new password.')
       return
     }
-    if (data.session) navigate('/dashboard', { replace: true })
-    else setMessage('Your learner account has been created. Check your email for the confirmation link, then sign in.')
+    navigate('/dashboard', { replace: true })
   }
 
   return (
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">NILE <span>ANALYTICS LABS</span></div>
-        <h1>Create your account.</h1>
-        <p>Join Nile Analytics Labs and start building practical data skills.</p>
-        <div className="demo-note">Learner registration is open. Administrator accounts are created separately by the platform owner.</div>
+        <h1>Activate your account.</h1>
+        <p>Enter the Login ID and one-time voucher supplied by the administrator, then create your private password.</p>
+        <div className="demo-note">Vouchers are valid for 30 days and can only be redeemed once. Keep your password private.</div>
         {error && <div className="auth-message auth-error" role="alert">{error}</div>}
-        {message && <div className="auth-message" role="status">{message}</div>}
         <form onSubmit={handleSubmit}>
-          <label>Full name<div className="input-icon"><UserRound /><input autoComplete="name" placeholder="Your full name" value={fullName} onChange={event => setFullName(event.target.value)} required /></div></label>
-          <label>Email address<div className="input-icon"><Mail /><input type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={event => setEmail(event.target.value)} required /></div></label>
-          <label>Password<div className="input-icon"><LockKeyhole /><input type="password" autoComplete="new-password" placeholder="At least 8 characters" value={password} onChange={event => setPassword(event.target.value)} minLength={8} required /></div></label>
-          <button className="btn btn-primary full" type="submit" disabled={submitting}>{submitting ? 'Creating account…' : 'Create Learner Account'} <ArrowRight size={18} /></button>
+          <label>Administrator-issued Login ID<div className="input-icon"><UserRound /><input autoComplete="username" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value.toUpperCase())} required /></div></label>
+          <label>One-time voucher<div className="input-icon"><Ticket /><input autoComplete="off" placeholder="Enter your voucher code" value={voucher} onChange={event => setVoucher(event.target.value.toUpperCase())} required /></div></label>
+          <label>Create password<div className="input-icon"><LockKeyhole /><input type="password" autoComplete="new-password" placeholder="At least 10 characters" value={password} onChange={event => setPassword(event.target.value)} minLength={10} required /></div></label>
+          <label>Confirm password<div className="input-icon"><LockKeyhole /><input type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} minLength={10} required /></div></label>
+          <button className="btn btn-primary full" type="submit" disabled={submitting}>{submitting ? 'Activating account…' : 'Activate learner account'} <ArrowRight size={18} /></button>
         </form>
-        <p className="auth-bottom">Already have an account? <Link to="/login">Sign in</Link></p>
+        <p className="auth-bottom">Already activated? <Link to="/login">Sign in</Link></p>
       </div>
     </div>
   )
