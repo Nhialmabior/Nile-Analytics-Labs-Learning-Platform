@@ -10,7 +10,7 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const { user, role, profile, loading } = useAuth()
+  const { user, role, profile, loading, sessionExpired } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -53,6 +53,7 @@ export default function Login() {
         <div className="auth-brand">NILE <span>ANALYTICS LABS</span></div>
         <h1>Welcome back.</h1>
         <p>Sign in with your administrator-issued Login ID and password.</p>
+        {sessionExpired && <div className="auth-message auth-error" role="status">You were signed out automatically after 30 minutes of inactivity. Please sign in again.</div>}
         {location.state?.accessDenied && <div className="auth-message auth-error" role="alert">This account does not currently have LMS access.</div>}
         {error && <div className="auth-message auth-error" role="alert">{error}</div>}
         <form onSubmit={handleSubmit}>

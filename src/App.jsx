@@ -3,6 +3,7 @@ import PublicLayout from './layouts/PublicLayout'
 import DashboardLayout from './layouts/DashboardLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import NileBot from './components/NileBot'
+import SessionTimeoutNotice from './components/SessionTimeoutNotice'
 import AdminDashboard from './pages/AdminDashboard'
 import Home from './pages/Home'
 import About from './pages/About'
@@ -45,6 +46,7 @@ export default function App() {
         </Route>
       </Routes>
       <NileBot />
+      <SessionTimeoutNotice />
     </>
   )
 }

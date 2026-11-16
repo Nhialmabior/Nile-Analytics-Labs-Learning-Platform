@@ -165,9 +165,16 @@ export default function Learning() {
     setModules(moduleRows || [])
     setLessons(lessonRows)
     setCompleted(completedIds)
-    setCurrentLessonId(current => lessonRows.some(item => item.id === current)
-      ? current
-      : lessonRows.find(item => !completedIds.includes(item.id))?.id || lessonRows[0]?.id || '')
+    let savedLessonId = ''
+    try {
+      savedLessonId = localStorage.getItem(`nile-lms:last-lesson:${user.id}:${slug}`) || ''
+    } catch {
+      // Fall back to the next unfinished lesson when storage is unavailable.
+    }
+    const resumeLessonId = lessonRows.some(item => item.id === savedLessonId)
+      ? savedLessonId
+      : lessonRows.find(item => !completedIds.includes(item.id))?.id || lessonRows[0]?.id || ''
+    setCurrentLessonId(resumeLessonId)
     setLoading(false)
   }, [slug, user?.id])
 
@@ -191,7 +198,7 @@ export default function Learning() {
     } else {
       setCompleted(previous => [...previous, currentLesson.id])
       const next = lessons.find(item => !completed.includes(item.id) && item.id !== currentLesson.id)
-      if (next) setCurrentLessonId(next.id)
+      if (next) selectLesson(next.id)
     }
     setSaving(false)
   }
@@ -226,10 +233,20 @@ export default function Learning() {
     setSubmitting(false)
   }
 
+  function selectLesson(lessonId) {
+    setCurrentLessonId(lessonId)
+    if (!user?.id || !slug || !lessonId) return
+    try {
+      localStorage.setItem(`nile-lms:last-lesson:${user.id}:${slug}`, lessonId)
+    } catch {
+      // Lesson completion remains saved in Supabase if browser storage is unavailable.
+    }
+  }
+
   function moveLesson(direction) {
     const index = lessons.findIndex(item => item.id === currentLessonId)
     const next = lessons[index + direction]
-    if (next) setCurrentLessonId(next.id)
+    if (next) selectLesson(next.id)
   }
 
   if (loading) {
@@ -271,7 +288,7 @@ export default function Learning() {
                     key={lesson.id}
                     className={currentLessonId === lesson.id ? 'lesson-nav active' : 'lesson-nav'}
                     aria-current={currentLessonId === lesson.id ? 'step' : undefined}
-                    onClick={() => setCurrentLessonId(lesson.id)}
+                    onClick={() => selectLesson(lesson.id)}
                   >
                     {completed.includes(lesson.id) ? <CheckCircle2 className="done"/> : <span className="lesson-number">{lessonIndex + 1}</span>}
                     <span>{lesson.title}<small><Clock3 size={11}/> {lesson.duration_minutes || 0} min</small></span>

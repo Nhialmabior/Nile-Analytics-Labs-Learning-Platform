@@ -79,3 +79,12 @@ Connect a backend and PostgreSQL database to support:
 6. A server-backed contact form with spam protection.
 
 Before enabling those features, add privacy and terms pages, define data-retention practices, and configure secure secrets on the backend.
+
+
+## Learner progress and session security
+
+- Lesson completion is recorded against the signed-in learner in Supabase.
+- The learning space remembers the last lesson opened in each course so learners can resume their studies.
+- Signed-in learner and administrator sessions expire after 30 minutes without activity.
+- A warning appears two minutes before automatic sign-out, allowing the user to continue the session or sign out immediately.
+- Activity in another open LMS tab also keeps the browser session active.
