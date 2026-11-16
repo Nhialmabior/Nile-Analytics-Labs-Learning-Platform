@@ -18,6 +18,8 @@ function getRememberedLogin() {
 export default function Login() {
   const [loginId, setLoginId] = useState(getRememberedLogin)
   const [rememberMe, setRememberMe] = useState(() => Boolean(getRememberedLogin()))
+  const [loginIdReady, setLoginIdReady] = useState(() => Boolean(getRememberedLogin()))
+  const [passwordReady, setPasswordReady] = useState(false)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -32,9 +34,11 @@ export default function Login() {
 
   function updateRememberMe(checked) {
     setRememberMe(checked)
+    setLoginIdReady(checked)
     if (!checked) {
       setLoginId('')
       setPassword('')
+      setPasswordReady(false)
       try {
         localStorage.removeItem(REMEMBERED_LOGIN_KEY)
       } catch {
@@ -79,6 +83,10 @@ export default function Login() {
       // Sign-in remains available even when browser storage is restricted.
     }
 
+    // Do not keep credentials in the login component after authentication.
+    // The Login ID survives only in localStorage when Remember me is enabled.
+    setPassword('')
+    if (!rememberMe) setLoginId('')
     setSubmitting(false)
     if (account.role === 'admin') navigate('/admin', { replace: true })
     else navigate(location.state?.from?.pathname || '/dashboard', { replace: true, state: location.state?.from?.state })
@@ -94,8 +102,8 @@ export default function Login() {
         {location.state?.accessDenied && <div className="auth-message auth-error" role="alert">This account does not currently have LMS access.</div>}
         {error && <div className="auth-message auth-error" role="alert">{error}</div>}
         <form onSubmit={handleSubmit} autoComplete="off">
-          <label>Login ID or administrator email<div className="input-icon"><UserRound /><input type="text" name="lms-login-id" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value)} required /></div></label>
-          <label>Password<div className="input-icon password-input-wrap"><LockKeyhole /><input type={showPassword ? 'text' : 'password'} name="lms-password" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" placeholder="Your password" value={password} onChange={event => setPassword(event.target.value)} required /><button className="password-visibility-btn" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
+          <label>Login ID or administrator email<div className="input-icon"><UserRound /><input type="text" name="nile-login-entry" autoComplete="off" readOnly={!loginIdReady} onFocus={() => setLoginIdReady(true)} data-lpignore="true" data-1p-ignore="true" data-bwignore="true" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value)} required /></div></label>
+          <label>Password<div className="input-icon password-input-wrap"><LockKeyhole /><input type={showPassword ? 'text' : 'password'} name="nile-password-entry" autoComplete="new-password" readOnly={!passwordReady} onFocus={() => setPasswordReady(true)} data-lpignore="true" data-1p-ignore="true" data-bwignore="true" placeholder="Your password" value={password} onChange={event => setPassword(event.target.value)} required /><button className="password-visibility-btn" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
           <div className="login-options">
             <label className="remember-me-option"><input type="checkbox" checked={rememberMe} onChange={event => updateRememberMe(event.target.checked)} /> <span>Remember me</span></label>
             <span className="remember-me-hint">Remembers your Login ID on this device only.</span>
