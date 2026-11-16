@@ -152,7 +152,7 @@ export function AuthProvider({ children }) {
       if (remaining <= IDLE_WARNING_MS) {
         setIdleWarning(true)
         setIdleRemaining(Math.max(0, remaining))
-
+      }
     }, 1000)
 
     return () => {
