@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Clock3, BookOpen, ArrowUpRight } from 'lucide-react'
+import CourseEnrollmentButton from './CourseEnrollmentButton'
 
 export default function CourseCard({ course }) {
   return (
@@ -15,9 +16,12 @@ export default function CourseCard({ course }) {
           <span><Clock3 size={15} /> {course.duration}</span>
           <span><BookOpen size={15} /> {course.lessons} lessons</span>
         </div>
-        <Link className="course-link" to={`/courses/${course.slug}`}>
-          View course <ArrowUpRight size={17} />
-        </Link>
+        <div className="course-card-actions">
+          <CourseEnrollmentButton course={course} className="btn btn-primary btn-sm full" />
+          <Link className="course-link" to={`/courses/${course.slug}`}>
+            View course details <ArrowUpRight size={17} />
+          </Link>
+        </div>
       </div>
     </article>
   )
