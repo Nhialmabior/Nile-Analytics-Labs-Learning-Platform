@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
-  const { user, loading, signOut } = useAuth()
+  const { user, profile, loading, signOut } = useAuth()
   const navigate = useNavigate()
   const nav = [
     ['/', 'Home'],
@@ -36,6 +36,7 @@ export default function Navbar() {
           ))}
           {!loading && (user ? (
             <>
+              {profile?.role === 'admin' && <Link className="nav-login" to="/admin" onClick={() => setOpen(false)}>Admin workspace</Link>}
               <Link className="nav-login" to="/dashboard" onClick={() => setOpen(false)}>My Dashboard</Link>
               <button type="button" className="nav-login" onClick={handleSignOut}>
                 <LogOut size={16} /> Sign out
