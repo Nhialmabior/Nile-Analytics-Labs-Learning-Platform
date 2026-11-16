@@ -33,6 +33,8 @@ export default function Login() {
   function updateRememberMe(checked) {
     setRememberMe(checked)
     if (!checked) {
+      setLoginId('')
+      setPassword('')
       try {
         localStorage.removeItem(REMEMBERED_LOGIN_KEY)
       } catch {
@@ -92,8 +94,8 @@ export default function Login() {
         {location.state?.accessDenied && <div className="auth-message auth-error" role="alert">This account does not currently have LMS access.</div>}
         {error && <div className="auth-message auth-error" role="alert">{error}</div>}
         <form onSubmit={handleSubmit} autoComplete="off">
-          <label>Login ID or administrator email<div className="input-icon"><UserRound /><input type="text" name="lms-login-id" autoComplete="off" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value)} required /></div></label>
-          <label>Password<div className="input-icon password-input-wrap"><LockKeyhole /><input type={showPassword ? 'text' : 'password'} name="lms-password" autoComplete="off" placeholder="Your password" value={password} onChange={event => setPassword(event.target.value)} required /><button className="password-visibility-btn" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
+          <label>Login ID or administrator email<div className="input-icon"><UserRound /><input type="text" name="lms-login-id" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value)} required /></div></label>
+          <label>Password<div className="input-icon password-input-wrap"><LockKeyhole /><input type={showPassword ? 'text' : 'password'} name="lms-password" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" placeholder="Your password" value={password} onChange={event => setPassword(event.target.value)} required /><button className="password-visibility-btn" type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
           <div className="login-options">
             <label className="remember-me-option"><input type="checkbox" checked={rememberMe} onChange={event => updateRememberMe(event.target.checked)} /> <span>Remember me</span></label>
             <span className="remember-me-hint">Remembers your Login ID on this device only.</span>
