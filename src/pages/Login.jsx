@@ -13,7 +13,7 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  if (!loading && user && role) return <Navigate to={role === 'admin' ? '/admin' : '/dashboard'} replace />
+  if (!loading && user && role) return <Navigate to={location.state?.from?.pathname || (role === 'admin' ? '/admin' : '/dashboard')} state={location.state?.from?.state} replace />
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -35,7 +35,7 @@ export default function Login() {
       return
     }
     if (profile.role === 'admin') navigate('/admin', { replace: true })
-    else navigate(location.state?.from?.pathname || '/dashboard', { replace: true })
+    else navigate(location.state?.from?.pathname || '/dashboard', { replace: true, state: location.state?.from?.state })
   }
 
   return (
