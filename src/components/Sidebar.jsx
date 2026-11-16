@@ -1,10 +1,10 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, BookOpen, Award, UserRound, LogOut, Home } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Award, UserRound, LogOut, Home, ShieldCheck } from 'lucide-react'
 import Logo from './Logo'
 import { useAuth } from '../context/AuthContext'
 
 export default function Sidebar({ mobileOpen = false, onNavigate }) {
-  const { signOut } = useAuth()
+  const { signOut, profile } = useAuth()
   const navigate = useNavigate()
   const items = [
     ['/dashboard', 'Dashboard', LayoutDashboard],
@@ -29,6 +29,10 @@ export default function Sidebar({ mobileOpen = false, onNavigate }) {
             <Icon size={19} /> {label}
           </NavLink>
         ))}
+        {profile?.role === 'admin' && <>
+          <p className="side-label">ADMINISTRATION</p>
+          <NavLink to="/admin" onClick={onNavigate} className="side-link"><ShieldCheck size={19} /> Admin workspace</NavLink>
+        </>}
         <p className="side-label">PLATFORM</p>
         <NavLink to="/" onClick={onNavigate} className="side-link"><Home size={19} /> Visit Website</NavLink>
       </nav>
