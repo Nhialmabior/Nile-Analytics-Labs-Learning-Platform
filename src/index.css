@@ -379,3 +379,43 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .curriculum-lesson-editor .admin-form-actions{margin-top:2px}
 @media(max-width:900px){.curriculum-layout{grid-template-columns:1fr}.curriculum-course-picker{width:100%}}
 @media(max-width:560px){.curriculum-summary{align-items:flex-start;flex-direction:column}.curriculum-editor-grid{grid-template-columns:1fr}.curriculum-section-head{align-items:flex-start;flex-wrap:wrap}.curriculum-lesson{align-items:flex-start;flex-direction:column}.curriculum-lesson-actions{align-self:flex-end}}
+
+
+/* Navigation usability refresh */
+.admin-mobile-menu{display:none;align-items:center;justify-content:center;width:38px;height:38px;flex:none;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--navy)}
+.admin-sidebar-backdrop{display:none}
+.admin-nav-link:focus-visible,.admin-refresh:focus-visible,.admin-mobile-menu:focus-visible{outline:3px solid rgba(14,165,201,.55);outline-offset:3px}
+.admin-visit-link{margin-top:2px}
+@media(max-width:720px){
+  .admin-sidebar{width:min(285px,84vw);transform:translateX(-105%);transition:transform .22s ease;z-index:50;box-shadow:none}
+  .admin-sidebar.mobile-open{width:min(285px,84vw);transform:translateX(0);box-shadow:18px 0 45px rgba(6,43,61,.22)}
+  .admin-sidebar-backdrop{display:block;position:fixed;inset:0;z-index:49;border:0;border-radius:0;background:rgba(4,25,35,.48)}
+  .admin-brand{height:76px;padding:0 20px}
+  .admin-brand>span:last-child{font-size:inherit}
+  .admin-brand strong{font-size:12px}
+  .admin-brand small{font-size:8px}
+  .admin-side-label{display:block;padding:22px 22px 9px;font-size:9px}
+  .admin-nav{padding:0 12px;gap:5px}
+  .admin-nav-link,.admin-nav-link:not(.active){justify-content:flex-start;padding:12px 13px;font-size:12px}
+  .admin-nav-link svg{flex:none}
+  .admin-sidebar-bottom{padding:14px 13px}
+  .admin-user-mini{justify-content:flex-start;padding:5px 3px 13px}
+  .admin-user-mini>div{display:flex;font-size:inherit}
+  .admin-user-mini strong{font-size:11px}
+  .admin-user-mini small{font-size:9px;max-width:190px}
+  .admin-logout{justify-content:flex-start;padding:11px;font-size:11px}
+  .admin-logout svg{flex:none}
+  .admin-main{width:100%;margin-left:0}
+  .admin-topbar{position:sticky;top:0;z-index:20;height:68px;padding:0 13px;gap:10px}
+  .admin-mobile-menu{display:flex}
+  .admin-topbar>div{flex:1;min-width:0}
+  .admin-topbar>div span{font-size:6.5px;letter-spacing:.8px;line-height:1.4}
+  .admin-topbar>div strong{font-size:11px}
+  .admin-refresh{flex:none}
+}
+@media(max-width:420px){
+  .admin-topbar{gap:7px;padding:0 9px}
+  .admin-mobile-menu{width:34px;height:34px}
+  .admin-refresh{padding:8px}
+  .admin-content{padding:19px 10px}
+}
