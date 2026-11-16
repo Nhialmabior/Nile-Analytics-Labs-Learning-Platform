@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { KeyRound, Ticket, LockKeyhole, ArrowRight } from 'lucide-react'
+import { UserRound, Ticket, LockKeyhole, ArrowRight } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { learnerLoginEmail } from '../lib/learnerIdentity'
 import { useAuth } from '../context/AuthContext'
@@ -60,7 +60,7 @@ export default function Register() {
         <div className="demo-note">Vouchers are valid for 30 days and can only be redeemed once. Keep your password private.</div>
         {error && <div className="auth-message auth-error" role="alert">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <label>Administrator-issued Login ID<div className="input-icon"><UserRoundIcon /><input autoComplete="username" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value.toUpperCase())} required /></div></label>
+          <label>Administrator-issued Login ID<div className="input-icon"><UserRound /><input autoComplete="username" placeholder="NAL-XXXXXXXXXX" value={loginId} onChange={event => setLoginId(event.target.value.toUpperCase())} required /></div></label>
           <label>One-time voucher<div className="input-icon"><Ticket /><input autoComplete="off" placeholder="Enter your voucher code" value={voucher} onChange={event => setVoucher(event.target.value.toUpperCase())} required /></div></label>
           <label>Create password<div className="input-icon"><LockKeyhole /><input type="password" autoComplete="new-password" placeholder="At least 10 characters" value={password} onChange={event => setPassword(event.target.value)} minLength={10} required /></div></label>
           <label>Confirm password<div className="input-icon"><LockKeyhole /><input type="password" autoComplete="new-password" placeholder="Re-enter your password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} minLength={10} required /></div></label>
@@ -70,8 +70,4 @@ export default function Register() {
       </div>
     </div>
   )
-}
-
-function UserRoundIcon() {
-  return <KeyRound />
 }
