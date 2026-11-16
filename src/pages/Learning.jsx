@@ -30,6 +30,7 @@ export default function Learning() {
   const { slug } = useParams()
   const { user } = useAuth()
   const [course, setCourse] = useState(null)
+  const [notEnrolled, setNotEnrolled] = useState(false)
   const [modules, setModules] = useState([])
   const [lessons, setLessons] = useState([])
   const [completed, setCompleted] = useState([])
@@ -91,7 +92,7 @@ export default function Learning() {
 
     const { data: enrollment, error: enrollmentError } = await supabase
       .from('enrollments')
-      .select('id')
+      .select('id, status')
       .eq('course_id', courseRow.id)
       .eq('learner_id', user.id)
       .maybeSingle()
@@ -102,17 +103,14 @@ export default function Learning() {
       return
     }
 
-    if (!enrollment) {
-      const { error: joinError } = await supabase.from('enrollments').insert({
-        course_id: courseRow.id,
-        learner_id: user.id
-      })
-      if (joinError && !joinError.message.toLowerCase().includes('duplicate')) {
-        setError(joinError.message)
-        setLoading(false)
-        return
-      }
+    if (!enrollment || !['active', 'completed'].includes(enrollment.status)) {
+      setCourse(courseRow)
+      setNotEnrolled(true)
+      setLoading(false)
+      return
     }
+
+    setNotEnrolled(false)
 
     const lessonIds = lessonRows.map(item => item.id)
     let completedIds = []
@@ -236,6 +234,10 @@ export default function Learning() {
 
   if (loading) {
     return <div className="learning-state"><LoaderCircle className="learning-spinner" size={28}/><strong>Preparing your learning space…</strong><span>Loading course modules and lessons.</span></div>
+  }
+
+  if (notEnrolled) {
+    return <div className="learning-state"><BookOpen size={30}/><strong>You are not enrolled in this course yet</strong><p>Enrol from the course page to unlock its lessons and track your progress.</p><Link className="btn btn-primary" to={'/courses/' + slug}>Go to course enrolment</Link></div>
   }
 
   if (error && !course) {
