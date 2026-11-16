@@ -54,7 +54,15 @@ export function AuthProvider({ children }) {
       if (!active) return
       setSession(nextSession)
       setLoading(true)
-      if (event === 'SIGNED_IN') setSessionExpired(false)
+      if (event === 'SIGNED_IN') {
+        setSessionExpired(false)
+        lastActivityRef.current = Date.now()
+        try {
+          localStorage.setItem(ACTIVITY_STORAGE_KEY, String(lastActivityRef.current))
+        } catch {
+          // The in-memory timer remains available when storage is restricted.
+        }
+      }
       // Defer the Supabase query until after the auth callback completes.
       setTimeout(() => {
         if (active) loadProfile(nextSession?.user ?? null)
@@ -77,11 +85,24 @@ export function AuthProvider({ children }) {
       return undefined
     }
 
-    lastActivityRef.current = Date.now()
+    const now = Date.now()
+    let savedActivity = 0
     try {
-      localStorage.setItem(ACTIVITY_STORAGE_KEY, String(lastActivityRef.current))
+      savedActivity = Number(localStorage.getItem(ACTIVITY_STORAGE_KEY))
     } catch {
       // The timeout still works in browsers where storage is unavailable.
+    }
+    // Preserve the last activity across page refreshes; refreshing must not
+    // silently extend an otherwise inactive authenticated session.
+    lastActivityRef.current = Number.isFinite(savedActivity) && savedActivity > 0 && savedActivity <= now
+      ? savedActivity
+      : now
+    if (lastActivityRef.current === now) {
+      try {
+        localStorage.setItem(ACTIVITY_STORAGE_KEY, String(now))
+      } catch {
+        // Ignore storage restrictions.
+      }
     }
 
     let signingOut = false
@@ -131,9 +152,7 @@ export function AuthProvider({ children }) {
       if (remaining <= IDLE_WARNING_MS) {
         setIdleWarning(true)
         setIdleRemaining(Math.max(0, remaining))
-      } else if (idleWarning) {
-        setIdleWarning(false)
-      }
+
     }, 1000)
 
     return () => {
