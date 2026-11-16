@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
     const currentUser = session?.user
     if (!currentUser) return { error: new Error('You must be signed in.') }
     const { data, error } = await supabase.from('profiles')
-      .select('id, full_name, role, phone, location, institution, bio')
+      .select('id, full_name, role, phone, location, institution, bio, access_enabled')
       .eq('id', currentUser.id).maybeSingle()
     if (!error) setProfile(data)
     return { data, error }
