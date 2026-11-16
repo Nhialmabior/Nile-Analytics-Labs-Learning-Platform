@@ -337,3 +337,45 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .voucher-issued-card>div>span{font-size:8px;font-weight:800;letter-spacing:1px;color:#71858e}
 .voucher-issued-card>div>strong,.voucher-issued-card>div>code{font-size:13px;color:var(--navy);font-weight:800;overflow-wrap:anywhere}
 .voucher-issued-card .btn{justify-self:start}
+
+
+/* Administrator curriculum manager */
+.curriculum-manager .admin-panel-heading h2{display:flex;align-items:center;gap:9px}
+.curriculum-course-picker{display:grid;gap:6px;min-width:220px}
+.curriculum-course-picker label,.curriculum-editor label{font-size:10px;font-weight:800;color:#47616c}
+.curriculum-course-picker select,.curriculum-editor input,.curriculum-editor textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px 11px;background:#fff;color:var(--ink);font:400 11px 'DM Sans';outline:0}
+.curriculum-course-picker select:focus,.curriculum-editor input:focus,.curriculum-editor textarea:focus{border-color:var(--cyan)}
+.curriculum-summary{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 15px;margin:0 0 18px;border:1px solid #e6eef0;border-radius:9px;background:#f8fbfb}
+.curriculum-summary strong{font:700 12px Manrope;color:#183846}
+.curriculum-summary span{font-size:10px;color:#718891}
+.curriculum-layout{display:grid;grid-template-columns:minmax(230px,.78fr) minmax(0,1.5fr);gap:18px;align-items:start}
+.curriculum-modules,.curriculum-lessons{min-width:0}
+.curriculum-section-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 12px}
+.curriculum-section-head h3{display:flex;align-items:center;gap:8px;font:700 13px Manrope;color:#244451}
+.curriculum-section-head p{font-size:10px;color:#81949c;margin:5px 0 0}
+.curriculum-module,.curriculum-lesson{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:11px;border:1px solid #e8eff1;border-radius:9px;background:#fff;margin-bottom:8px}
+.curriculum-module.active{border-color:#8dcac5;background:#f3fbfa}
+.curriculum-module-select,.curriculum-lesson-main{display:flex;align-items:center;gap:10px;min-width:0;text-align:left}
+.curriculum-module-select{flex:1;border:0;background:transparent;padding:0;color:inherit;cursor:pointer}
+.curriculum-module-select>span:last-child,.curriculum-lesson-main>div{display:grid;gap:4px;min-width:0}
+.curriculum-module-select strong,.curriculum-lesson-main strong{font-size:10px;color:#294854;overflow-wrap:anywhere}
+.curriculum-module-select small,.curriculum-lesson-main small{font-size:9px;color:#84969d}
+.curriculum-module-number{width:27px;height:27px;flex:none;display:grid;place-items:center;border-radius:7px;background:#edf5f5;color:#397b79;font-size:9px;font-weight:800}
+.curriculum-module-actions,.curriculum-lesson-actions{display:flex;align-items:center;gap:3px;flex:none}
+.curriculum-module-actions button,.curriculum-lesson-actions button,.curriculum-editor-head button{width:27px;height:27px;display:grid;place-items:center;border:1px solid #e6edef;border-radius:6px;background:#fff;color:#617982}
+.curriculum-module-actions button:hover,.curriculum-lesson-actions button:hover{background:#eef8f7;color:#147d76}
+.curriculum-module-actions button.danger,.curriculum-lesson-actions button.danger{color:#bd5555}
+.curriculum-lesson-main{flex:1}
+.curriculum-lesson-actions button:disabled{opacity:.35;cursor:not-allowed}
+.curriculum-published{color:#16835e;font-weight:800}
+.curriculum-draft{color:#9b6a13;font-weight:800}
+.curriculum-editor{display:grid;gap:12px;padding:15px;margin:12px 0;border:1px solid #dce9eb;border-radius:10px;background:#f9fbfb}
+.curriculum-editor-head{display:flex;align-items:center;justify-content:space-between}
+.curriculum-editor-head strong{font:700 12px Manrope;color:#244451}
+.curriculum-editor label{display:grid;gap:6px}
+.curriculum-editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.curriculum-publish-toggle{display:flex!important;align-items:center;gap:8px}
+.curriculum-publish-toggle input{width:15px;height:15px;accent-color:var(--teal)}
+.curriculum-lesson-editor .admin-form-actions{margin-top:2px}
+@media(max-width:900px){.curriculum-layout{grid-template-columns:1fr}.curriculum-course-picker{width:100%}}
+@media(max-width:560px){.curriculum-summary{align-items:flex-start;flex-direction:column}.curriculum-editor-grid{grid-template-columns:1fr}.curriculum-section-head{align-items:flex-start;flex-wrap:wrap}.curriculum-lesson{align-items:flex-start;flex-direction:column}.curriculum-lesson-actions{align-self:flex-end}}
