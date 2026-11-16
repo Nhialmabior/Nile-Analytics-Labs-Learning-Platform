@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut,
+  LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut, Layers3,
   Plus, RefreshCw, Search, GraduationCap, TrendingUp, FileCheck2, Eye, EyeOff,
   Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import CurriculumManager from '../components/CurriculumManager'
 
 const sections = [
   ['overview', 'Overview', LayoutDashboard],
   ['courses', 'Courses', BookOpen],
+  ['curriculum', 'Curriculum', Layers3],
   ['learners', 'Learners', Users],
   ['assessments', 'Assessments', ClipboardList],
   ['reports', 'Reports', BarChart3]
@@ -402,6 +404,8 @@ export default function AdminDashboard() {
               {loading ? <p className="admin-muted">Loading courses…</p> : filteredCourses.length === 0 ? <div className="admin-empty"><BookOpen size={28} /><strong>No matching courses</strong><span>Create a course or change your search.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>COURSE</th><th>CATEGORY</th><th>LEVEL</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody>{filteredCourses.map(course => <tr key={course.id}><td><strong>{course.title}</strong><small>{course.slug}</small></td><td>{course.category}</td><td>{course.level}</td><td><span className={course.is_published ? 'admin-status published' : 'admin-status draft'}>{course.is_published ? 'Published' : 'Draft'}</span></td><td><div className="admin-row-actions"><button title={course.is_published ? 'Unpublish' : 'Publish'} onClick={() => togglePublish(course)}>{course.is_published ? <EyeOff size={16} /> : <Eye size={16} />}</button><button title="Edit course" onClick={() => startEdit(course)}><Pencil size={16} /></button><button title="Delete course" className="danger" onClick={() => deleteCourse(course)}><Trash2 size={16} /></button></div></td></tr>)}</tbody></table></div>}
             </>}
           </div>}
+
+          {section === 'curriculum' && <CurriculumManager courses={courses} />}
 
           {section === 'learners' && <>
             <div className="admin-panel">
