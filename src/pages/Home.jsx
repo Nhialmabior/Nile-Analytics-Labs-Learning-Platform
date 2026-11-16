@@ -2,8 +2,12 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, PlayCircle, BarChart3, Users, Award, CheckCircle2 } from 'lucide-react'
 import CourseCard from '../components/CourseCard'
 import { featuredCourses } from '../data/courses'
+import { useAuth } from '../context/AuthContext'
 
 export default function Home() {
+  const { user, loading } = useAuth()
+  const primaryAction = user ? { to: '/dashboard', label: 'Go to Dashboard' } : { to: '/register', label: 'Start Learning' }
+
   return (
     <>
       <section className="hero">
@@ -67,7 +71,7 @@ export default function Home() {
               <li><CheckCircle2/> Learn at your own pace</li>
               <li><CheckCircle2/> Build skills you can demonstrate</li>
             </ul>
-            <Link className="btn btn-primary" to="/register">Start Learning <ArrowRight size={18}/></Link>
+            <Link className="btn btn-primary" to={loading ? "/courses" : primaryAction.to}>{loading ? "Explore Courses" : primaryAction.label} <ArrowRight size={18}/></Link>
           </div>
           <div className="data-art">
             <div className="data-window">
