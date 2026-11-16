@@ -1,4 +1,4 @@
--- Voucher-controlled learner access. Run in Supabase SQL Editor before frontend deployment.
+-- Voucher-controlled learner access. Run in Supabase SQL Editor before frontend deployment.\ncreate extension if not exists pgcrypto with schema extensions;
 alter table public.profiles add column if not exists access_enabled boolean not null default false;
 -- Preserve all existing rows, but require fresh voucher redemption for existing learner accounts.
 update public.profiles set access_enabled = (role = 'admin');
