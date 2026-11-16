@@ -308,7 +308,7 @@ export default function Learning() {
               <div className="lesson-video-empty"><PlayCircle size={46}/><strong>Lesson video and learning resources</strong><span>Use the resource link below to open the recommended tutorial or reference.</span></div>
             )}
             <article className="lesson-content">
-              <span className="section-kicker">NILE ANALYTICS LABS · EXCEL LEARNING PATH</span>
+              <span className="section-kicker">NILE ANALYTICS LABS · {course?.title || "LEARNING PATH"}</span>
               <h1>{currentLesson.title}</h1>
               <p>{currentLesson.content}</p>
               {currentLesson.resource_url && <a className="lesson-resource-link" href={currentLesson.resource_url} target="_blank" rel="noreferrer"><FileText size={17}/> Open recommended learning resource <ExternalLink size={15}/></a>}
