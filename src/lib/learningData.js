@@ -64,7 +64,14 @@ export async function loadLearnerCourses(learnerId) {
     const progress = lessons.length
       ? Math.round((completedLessons / lessons.length) * 100)
       : 0
-    const nextLesson = lessons.find(lesson => !completedIds.has(lesson.id))
+    let savedLessonId = ''
+    try {
+      savedLessonId = localStorage.getItem(`nile-lms:last-lesson:${learnerId}:${course.slug}`) || ''
+    } catch {
+      // Use the next unfinished lesson when browser storage is unavailable.
+    }
+    const savedLesson = lessons.find(lesson => lesson.id === savedLessonId && !completedIds.has(lesson.id))
+    const nextLesson = savedLesson || lessons.find(lesson => !completedIds.has(lesson.id))
     const visual = courseVisuals[course.category] || { accent: '', icon: '▤' }
 
     return {
