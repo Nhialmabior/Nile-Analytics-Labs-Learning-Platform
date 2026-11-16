@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut,
   Plus, RefreshCw, Search, GraduationCap, TrendingUp, FileCheck2, Eye, EyeOff,
-  Pencil, Trash2, X, AlertCircle, CheckCircle2
+  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -43,12 +43,15 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false)
   const [showAssessmentForm, setShowAssessmentForm] = useState(false)
   const [assessmentForm, setAssessmentForm] = useState(blankAssessment)
+  const [voucherName, setVoucherName] = useState('')
+  const [issuedVoucher, setIssuedVoucher] = useState(null)
+  const [issuingVoucher, setIssuingVoucher] = useState(false)
 
   const loadData = useCallback(async () => {
     setLoading(true)
     setError('')
     const [profileRes, courseRes, enrollmentRes, assessmentRes, submissionCountRes, submissionRowsRes, enrollmentRowsRes, moduleRowsRes, progressRowsRes] = await Promise.all([
-      supabase.from('profiles').select('id, full_name, role, created_at').order('created_at', { ascending: false }),
+      supabase.from('profiles').select('id, full_name, role, created_at, access_enabled').order('created_at', { ascending: false }),
       supabase.from('courses').select('*').order('created_at', { ascending: false }),
       supabase.from('enrollments').select('id', { count: 'exact', head: true }),
       supabase.from('assessments').select('id, course_id, title, total_marks, is_published, created_at, courses(title)').order('created_at', { ascending: false }),
@@ -112,6 +115,25 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => { loadData() }, [loadData])
+
+  async function issueLearnerVoucher(event) {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    setIssuedVoucher(null)
+    setIssuingVoucher(true)
+    const { data, error: issueError } = await supabase.rpc('issue_learner_voucher', {
+      p_full_name: voucherName.trim()
+    })
+    setIssuingVoucher(false)
+    if (issueError) {
+      setError(issueError.message)
+      return
+    }
+    setIssuedVoucher(data)
+    setVoucherName('')
+    setNotice('Voucher created. Copy the Login ID and voucher now; the voucher is shown only once.')
+  }
 
   async function handleSignOut() {
     await signOut()
@@ -381,7 +403,27 @@ export default function AdminDashboard() {
             </>}
           </div>}
 
-          {section === 'learners' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{learners.length}</span></h2><p>Learner profiles registered on the platform.</p></div><div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search learners" /></div></div>{loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New learner registrations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ROLE</th></tr></thead><tbody>{filteredLearners.map(person => <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td><span className="admin-status learner">Learner</span></td></tr>)}</tbody></table></div>}</div>}
+          {section === 'learners' && <>
+            <div className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Issue learner access</h2><p>Create a unique Login ID and one-time voucher for a learner.</p></div><Ticket size={22}/></div>
+              <form className="admin-course-form" onSubmit={issueLearnerVoucher}>
+                <label>Learner full name<input required minLength={2} value={voucherName} onChange={event => setVoucherName(event.target.value)} placeholder="Enter learner's full name"/></label>
+                <div className="admin-form-actions"><button className="btn btn-primary" type="submit" disabled={issuingVoucher || !voucherName.trim()}>{issuingVoucher ? 'Generating…' : 'Generate Login ID & voucher'}</button></div>
+              </form>
+              {issuedVoucher && <div className="voucher-issued-card">
+                <strong>Give these details to the learner securely</strong>
+                <p>The voucher is displayed only now. It expires in 30 days and can be redeemed once.</p>
+                <div><span>LEARNER</span><strong>{issuedVoucher.full_name}</strong></div>
+                <div><span>LOGIN ID</span><code>{issuedVoucher.login_id}</code></div>
+                <div><span>ONE-TIME VOUCHER</span><code>{issuedVoucher.voucher}</code></div>
+                <button type="button" className="btn btn-ghost" onClick={() => navigator.clipboard?.writeText('Login ID: '+issuedVoucher.login_id+'\\nVoucher: '+issuedVoucher.voucher)}>Copy credentials</button>
+              </div>}
+            </div>
+            <div className="admin-panel">
+              <div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{learners.length}</span></h2><p>Existing profiles are preserved; only approved accounts can access learning materials.</p></div><div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search learners" /></div></div>
+              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New voucher activations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr>)}</tbody></table></div>}
+            </div>
+          </>}
 
           {section === 'assessments' && <div className="admin-panel">
             <div className="admin-panel-heading"><div><h2>Assessments <span className="admin-count">{assessments.length}</span></h2><p>Create assignments, publish instructions and review learner submissions.</p></div><button className="btn btn-primary" type="button" onClick={startAssessment}><Plus size={16}/> Create assessment</button></div>
