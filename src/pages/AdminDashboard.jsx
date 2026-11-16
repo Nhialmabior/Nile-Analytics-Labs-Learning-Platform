@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut, Layers3,
   Plus, RefreshCw, Search, GraduationCap, TrendingUp, FileCheck2, Eye, EyeOff,
-  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket
+  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket, Menu, Home
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [section, setSection] = useState('overview')
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [stats, setStats] = useState({ learners: 0, courses: 0, published: 0, enrollments: 0, assessments: 0, submissions: 0 })
   const [courses, setCourses] = useState([])
   const [learners, setLearners] = useState([])
@@ -349,15 +350,18 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-shell">
-      <aside className="admin-sidebar">
+      {mobileNavOpen && <button className="admin-sidebar-backdrop" type="button" aria-label="Close administrator navigation" onClick={() => setMobileNavOpen(false)} />}
+      <aside className={mobileNavOpen ? 'admin-sidebar mobile-open' : 'admin-sidebar'}>
         <div className="admin-brand"><span className="admin-brand-mark">N</span><span><strong>NILE ANALYTICS</strong><small>ADMINISTRATION</small></span></div>
         <div className="admin-side-label">WORKSPACE</div>
         <nav className="admin-nav">
           {sections.map(([id, label, Icon]) => (
-            <button key={id} type="button" className={section === id ? 'admin-nav-link active' : 'admin-nav-link'} onClick={() => { setSection(id); setSearch(''); setShowForm(false) }}>
+            <button key={id} type="button" className={section === id ? 'admin-nav-link active' : 'admin-nav-link'} onClick={() => { setSection(id); setSearch(''); setShowForm(false); setMobileNavOpen(false) }}>
               <Icon size={18} />{label}
             </button>
           ))}
+          <div className="admin-side-label">QUICK ACCESS</div>
+          <button type="button" className="admin-nav-link" onClick={() => { navigate('/'); setMobileNavOpen(false) }}><Home size={18} />Visit website</button>
         </nav>
         <div className="admin-sidebar-bottom">
           <div className="admin-user-mini"><span>{(profile?.full_name || user?.email || 'A').slice(0, 1).toUpperCase()}</span><div><strong>{profile?.full_name || 'Administrator'}</strong><small>{user?.email}</small></div></div>
@@ -366,7 +370,7 @@ export default function AdminDashboard() {
       </aside>
 
       <main className="admin-main">
-        <header className="admin-topbar"><div><span>UNIVERSITY OF JUBA · LEARNING MANAGEMENT SYSTEM</span><strong>Administrator workspace</strong></div><button type="button" className="admin-refresh" onClick={loadData} disabled={loading}><RefreshCw size={16} className={loading ? 'admin-spin' : ''} /> Refresh data</button></header>
+        <header className="admin-topbar"><button type="button" className="admin-mobile-menu" aria-label={mobileNavOpen ? 'Close administrator navigation' : 'Open administrator navigation'} aria-expanded={mobileNavOpen} onClick={() => setMobileNavOpen(value => !value)}><Menu size={21} /></button><div><span>UNIVERSITY OF JUBA · LEARNING MANAGEMENT SYSTEM</span><strong>Administrator workspace</strong></div><button type="button" className="admin-refresh" onClick={loadData} disabled={loading}><RefreshCw size={16} className={loading ? 'admin-spin' : ''} /> Refresh data</button></header>
         <div className="admin-content">
           <div className="admin-page-heading"><div><span className="section-kicker">NILE ANALYTICS LABS</span><h1>{sections.find(item => item[0] === section)?.[1]}</h1><p>Manage your learning platform and monitor activity.</p></div>{section === 'courses' && <button className="btn btn-primary" onClick={startCreate}><Plus size={17} /> Add course</button>}</div>
 
