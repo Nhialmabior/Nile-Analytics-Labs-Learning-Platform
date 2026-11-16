@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Bell, Search, Menu, X } from 'lucide-react'
+import { BookOpen, Search, Menu, X } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/AuthContext'
 
@@ -25,7 +25,7 @@ export default function DashboardLayout() {
             <Search size={18} /><span>Browse courses and lessons</span>
           </Link>
           <div className="top-actions">
-            <span className="icon-btn" aria-label="Notifications are not enabled yet"><Bell size={19} /></span>
+            <Link className="icon-btn" to="/my-courses" aria-label="Open my courses" title="My courses"><BookOpen size={19} /></Link>
             <div className="avatar">{initials}</div>
             <div className="top-user"><strong>{displayName}</strong><span>{user?.email}</span></div>
           </div>
