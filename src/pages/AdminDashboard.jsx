@@ -416,7 +416,7 @@ export default function AdminDashboard() {
                 <div><span>LEARNER</span><strong>{issuedVoucher.full_name}</strong></div>
                 <div><span>LOGIN ID</span><code>{issuedVoucher.login_id}</code></div>
                 <div><span>ONE-TIME VOUCHER</span><code>{issuedVoucher.voucher}</code></div>
-                <button type="button" className="btn btn-ghost" onClick={() => navigator.clipboard?.writeText('Login ID: '+issuedVoucher.login_id+'\\nVoucher: '+issuedVoucher.voucher)}>Copy credentials</button>
+                <button type="button" className="btn btn-ghost" onClick={() => navigator.clipboard?.writeText('Login ID: '+issuedVoucher.login_id+'\nVoucher: '+issuedVoucher.voucher)}>Copy credentials</button>
               </div>}
             </div>
             <div className="admin-panel">
