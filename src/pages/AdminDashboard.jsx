@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut, Layers3,
   Plus, RefreshCw, Search, GraduationCap, TrendingUp, FileCheck2, Eye, EyeOff,
-  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket, Menu, Home
+  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket, Menu, Home, History
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -14,6 +14,7 @@ const sections = [
   ['courses', 'Courses', BookOpen],
   ['curriculum', 'Curriculum', Layers3],
   ['learners', 'Learners', Users],
+  ['activity', 'Activity log', History],
   ['assessments', 'Assessments', ClipboardList],
   ['reports', 'Reports', BarChart3]
 ]
@@ -44,6 +45,9 @@ export default function AdminDashboard() {
   const [learnerEnrolmentFilter, setLearnerEnrolmentFilter] = useState('all')
   const [selectedLearnerId, setSelectedLearnerId] = useState(null)
   const [changingLearnerAccessId, setChangingLearnerAccessId] = useState(null)
+  const [accessHistory, setAccessHistory] = useState([])
+  const [accessHistoryLoading, setAccessHistoryLoading] = useState(false)
+  const [accessHistoryError, setAccessHistoryError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(blankCourse)
@@ -122,6 +126,18 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => { loadData() }, [loadData])
+
+  async function loadAccessHistory() {
+    setAccessHistoryLoading(true)
+    setAccessHistoryError('')
+    const { data, error: historyError } = await supabase.rpc('get_learner_access_audit', { p_limit: 100 })
+    if (historyError) {
+      setAccessHistoryError(historyError.message)
+    } else {
+      setAccessHistory(data || [])
+    }
+    setAccessHistoryLoading(false)
+  }
 
   async function toggleLearnerAccess(person) {
     const nextEnabled = !person.access_enabled
@@ -422,7 +438,7 @@ export default function AdminDashboard() {
         <div className="admin-side-label">WORKSPACE</div>
         <nav className="admin-nav">
           {sections.map(([id, label, Icon]) => (
-            <button key={id} type="button" className={section === id ? 'admin-nav-link active' : 'admin-nav-link'} onClick={() => { setSection(id); setSearch(''); setShowForm(false); setMobileNavOpen(false) }}>
+            <button key={id} type="button" className={section === id ? 'admin-nav-link active' : 'admin-nav-link'} onClick={() => { setSection(id); setSearch(''); setShowForm(false); setMobileNavOpen(false); if (id === 'activity') loadAccessHistory() }}>
               <Icon size={18} />{label}
             </button>
           ))}
@@ -521,6 +537,26 @@ export default function AdminDashboard() {
               </section>
             </div>}
           </>}
+
+          {section === 'activity' && <div className="admin-panel">
+            <div className="admin-panel-heading">
+              <div><h2>Learner access history <span className="admin-count">{accessHistory.length}</span></h2><p>Review recent learner account enablement and suspension decisions.</p></div>
+              <button type="button" className="admin-refresh" onClick={loadAccessHistory} disabled={accessHistoryLoading}><RefreshCw size={15} className={accessHistoryLoading ? 'admin-spin' : ''}/> Refresh history</button>
+            </div>
+            {accessHistoryError && <div className="admin-alert error"><AlertCircle size={17}/><span>{accessHistoryError}</span></div>}
+            {accessHistoryLoading ? <p className="admin-muted">Loading access history…</p> : accessHistoryError ? null : accessHistory.length === 0
+              ? <div className="admin-empty"><History size={28}/><strong>No access changes recorded</strong><span>When an administrator enables or suspends a learner, the decision will appear here with its reason and timestamp.</span></div>
+              : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>CHANGE</th><th>ADMINISTRATOR</th><th>REASON</th><th>DATE &amp; TIME</th></tr></thead><tbody>
+                {accessHistory.map(item => <tr key={item.id}>
+                  <td><strong>{item.learner_name}</strong><small>{item.learner_id}</small></td>
+                  <td><span className={item.new_access_enabled ? 'admin-status published' : 'admin-status draft'}>{item.new_access_enabled ? 'Enabled' : 'Suspended'}</span><small>From {item.previous_access_enabled ? 'Enabled' : 'Suspended'}</small></td>
+                  <td>{item.administrator_name}<small>{item.changed_by.slice(0, 8)}…</small></td>
+                  <td className="admin-audit-reason">{item.reason}</td>
+                  <td>{new Date(item.changed_at).toLocaleString()}</td>
+                </tr>)}
+              </tbody></table></div>}
+            <p className="admin-muted admin-audit-note">Showing up to 100 most recent changes. Audit records are read-only from this dashboard.</p>
+          </div>}
 
           {section === 'assessments' && <div className="admin-panel">
             <div className="admin-panel-heading"><div><h2>Assessments <span className="admin-count">{assessments.length}</span></h2><p>Create assignments, publish instructions and review learner submissions.</p></div><button className="btn btn-primary" type="button" onClick={startAssessment}><Plus size={16}/> Create assessment</button></div>
