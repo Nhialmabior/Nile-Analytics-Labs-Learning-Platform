@@ -277,6 +277,17 @@ export default function AdminDashboard() {
   }
 
   const filteredCourses = courses.filter(course => (course.title + ' ' + course.category).toLowerCase().includes(search.toLowerCase()))
+  const learnerSummaries = new Map()
+  for (const row of completionRows) {
+    const current = learnerSummaries.get(row.learnerId) || { enrolments: 0, measurable: 0, progressTotal: 0, completed: 0 }
+    current.enrolments += 1
+    if (row.progress !== null) {
+      current.measurable += 1
+      current.progressTotal += row.progress
+      if (row.progress === 100) current.completed += 1
+    }
+    learnerSummaries.set(row.learnerId, current)
+  }
   const filteredLearners = learners.filter(person => (person.full_name || '').toLowerCase().includes(search.toLowerCase()) || person.id.toLowerCase().includes(search.toLowerCase()))
 
   // Report only recorded assessment activity. Unmarked work is never treated as a zero.
@@ -429,7 +440,7 @@ export default function AdminDashboard() {
             </div>
             <div className="admin-panel">
               <div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{learners.length}</span></h2><p>Existing profiles are preserved; only approved accounts can access learning materials.</p></div><div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search learners" /></div></div>
-              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New voucher activations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr>)}</tbody></table></div>}
+              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New voucher activations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ENROLMENTS</th><th>AVERAGE PROGRESS</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => { const summary = learnerSummaries.get(person.id); const average = summary?.measurable ? summary.progressTotal / summary.measurable : null; return <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td>{summary?.enrolments || 0}{summary?.completed ? <small>{summary.completed} fully completed</small> : null}</td><td>{average === null ? '—' : <div className="admin-completion-cell"><strong>{average.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: average + '%' }}/></div></div>}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr> })}</tbody></table></div>}
             </div>
           </>}
 
