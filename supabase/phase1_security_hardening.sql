@@ -274,6 +274,31 @@ using (
   )
 );
 
+
+-- ---------------------------------------------------------------------------
+-- 5. SECURITY DEFINER RPC exposure: keep intended signed-in operations, but
+-- do not expose privileged helpers or admin/quiz RPCs to anonymous callers.
+-- The auth.users trigger can invoke handle_new_user without client EXECUTE.
+-- ---------------------------------------------------------------------------
+
+revoke all on function public.handle_new_user()
+  from public, anon, authenticated, service_role;
+
+revoke all on function public.grade_assessment_submission(uuid, numeric, text)
+  from public, anon;
+grant execute on function public.grade_assessment_submission(uuid, numeric, text)
+  to authenticated;
+
+revoke all on function public.is_admin()
+  from public, anon;
+grant execute on function public.is_admin()
+  to authenticated;
+
+revoke all on function public.submit_quiz_attempt(uuid, jsonb)
+  from public, anon;
+grant execute on function public.submit_quiz_attempt(uuid, jsonb)
+  to authenticated;
+
 commit;
 
 -- ---------------------------------------------------------------------------
