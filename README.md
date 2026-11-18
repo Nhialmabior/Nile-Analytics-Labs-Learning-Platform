@@ -2,43 +2,48 @@
 
 **Motto:** Analyze today, solve tomorrow.
 
-A responsive React + Vite learning-platform frontend for Nile Analytics Labs, a data analysis and statistical computing learning initiative based at the University of Juba in Juba, South Sudan.
+Nile Analytics Labs is a learning platform for practical data analysis and statistical computing education. Its course catalogue focuses on **Excel, Stata, R Programming and SPSS**.
 
-## Live website
+**Live website:** https://nhialmabior.github.io/Nile-Analytics-Labs-Learning-Platform/
 
-https://nhialmabior.github.io/Nile-Analytics-Labs-Learning-Platform/
+## Platform capabilities
 
-## Current features
+### Public learning website
+- Responsive home, about, course catalogue, course detail and contact pages.
+- Searchable course catalogue with category filters.
+- Public sample lesson previews for prospective learners.
+- Responsive navigation and mobile layouts.
+- Site metadata, favicon, web manifest, robots file and sitemap.
 
-### Public website
-- Home page and introduction to Nile Analytics Labs
-- About page
-- Course catalogue with search and category filters
-- Course detail pages for Excel, Stata, R Programming and SPSS
-- Contact page with an email-client handoff
-- Responsive navigation and mobile layout
-- Site metadata, SVG favicon, web manifest, robots file and sitemap
+### Learner experience
+- Login using an administrator-issued Login ID or administrator email.
+- Voucher-based learner account activation; vouchers are issued by an administrator and are single-use.
+- Protected learner dashboard and enrolled-course workspace.
+- Lesson viewer with course-aware navigation and progress tracking.
+- Resume learning from the last opened lesson.
+- Assessment submissions and quiz attempts.
+- Learner profile management and assessment feedback.
+- Session inactivity timeout with a warning before automatic sign-out.
 
-### Learner interface preview
-- Login and registration screens (not connected to authentication)
-- Student dashboard with sample metrics
-- My Courses and lesson-player previews
-- Profile and certificate screens (sample content only)
-- Responsive learner navigation
+### Administrator workspace
+- Protected administrator dashboard and overview metrics.
+- Course and curriculum management.
+- Create, edit, publish, unpublish and organize modules and lessons.
+- Manage learners and administrator-issued activation vouchers.
+- Manage assessments and review learner submissions.
+- View learner and course reporting information.
 
-## Important project status
-
-This release is a **frontend prototype**. It currently uses sample course and learner data. There is no production authentication, database, enrolment service, payment processing, lesson-video hosting, progress persistence, profile saving, or certificate generation. The login and registration controls are intentionally disabled so visitors are not led to believe that real accounts can be created.
-
-The contact form prepares an email in the visitor's default email application; it does not submit data to or store messages on a server.
+### Nile Bot
+- An authenticated AI learning assistant for data analysis and statistics questions.
+- Conversation history and course-related references.
+- Uses a Supabase Edge Function; the OpenAI API secret belongs in server-side Edge Function secrets and must never be placed in frontend environment variables.
 
 ## Technology
 
-- React 18
-- Vite 6
-- React Router
+- React 18, Vite 6 and React Router 7
+- Supabase Authentication, PostgreSQL, Row Level Security and Edge Functions
 - Lucide React
-- CSS
+- GitHub Actions and GitHub Pages
 
 ## Run locally
 
@@ -47,44 +52,63 @@ Requirements: Node.js 20 or later and npm.
 ```bash
 git clone https://github.com/Nhialmabior/Nile-Analytics-Labs-Learning-Platform.git
 cd Nile-Analytics-Labs-Learning-Platform
-npm install
+npm ci
 npm run dev
 ```
 
-Open the local URL printed by Vite, usually http://localhost:5173.
+Open the local URL printed by Vite. For this repository it is normally:
 
-To test the production build locally:
+`http://localhost:5173/Nile-Analytics-Labs-Learning-Platform/`
+
+Build and preview the production bundle locally:
 
 ```bash
 npm run build
 npm run preview
 ```
 
+## Environment configuration
+
+The frontend Supabase client reads these Vite variables when they are provided:
+
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+For local staging work, create a local `.env.local` file using the staging project's URL and publishable key. Do not commit `.env.local` or other secret-bearing environment files.
+
+The repository retains a public production fallback for the deployed GitHub Pages site. Local environment variables override that fallback during local development. Verify the project URL before testing so that staging work is not accidentally directed at production.
+
+**Never put a Supabase service-role key, secret API key or OpenAI key in a `VITE_*` variable.** Vite exposes `VITE_*` values to browser users. Keep privileged credentials in Supabase Edge Function secrets.
+
+## Authentication and learner activation
+
+Learners do not self-register with an unrestricted sign-up form. An administrator issues a Login ID and one-time voucher; the learner activates the account using those details and creates a private password.
+
+The voucher activation flow depends on the `redeem-learner-voucher` Supabase Edge Function. Nile Bot depends on the `nile-bot` Edge Function and a separately configured server-side OpenAI API key. These functions and their secrets must be configured in each Supabase environment where the features are expected to work.
+
+## Security and environments
+
+- Database access is protected by Supabase Row Level Security policies.
+- Learner access is controlled by account status, enrolment and course publication rules.
+- Administrator-only operations are protected by role checks and database permissions.
+- Keep staging and production Supabase projects separate.
+- Do not copy production users, learner records or privileged secrets into staging.
+- Review and test database changes in staging before considering production rollout.
+
+The `security/phase-1-hardening` branch and its draft pull request are for review and staging validation. Changes on that branch do not update the live GitHub Pages site unless they are merged and deployed through the production workflow.
+
 ## Deployment
 
-The project is published through GitHub Actions to GitHub Pages. The Vite base path is configured for this repository:
+The public site is published through GitHub Actions to GitHub Pages. The Vite base path is:
 
 `/Nile-Analytics-Labs-Learning-Platform/`
 
-The workflow builds the application and deploys the `dist` directory whenever changes are pushed to `main`. GitHub Pages should remain configured to use **GitHub Actions** as its deployment source.
+The production deployment workflow builds the application and publishes the `dist` directory from the configured deployment branch. Keep GitHub Pages configured to use **GitHub Actions** as its deployment source.
 
-## Recommended next phase
+## Current limitations and follow-up work
 
-Connect a backend and PostgreSQL database to support:
-1. Secure registration, login, password reset and role-based access.
-2. Course management, enrolment and instructor administration.
-3. Real lesson content, resources, quizzes and assessments.
-4. Persisted learner progress and dashboard metrics.
-5. Verified certificate generation and downloads.
-6. A server-backed contact form with spam protection.
+The platform is under active development. Before a production rollout, complete browser-level testing of administrator and learner workflows, verify voucher activation and Nile Bot in the intended environment, review Auth security settings (including leaked-password protection), and confirm backups and restore procedures.
 
-Before enabling those features, add privacy and terms pages, define data-retention practices, and configure secure secrets on the backend.
-
-
-## Learner progress and session security
-
-- Lesson completion is recorded against the signed-in learner in Supabase.
-- The learning space remembers the last lesson opened in each course so learners can resume their studies.
-- Signed-in learner and administrator sessions expire after 30 minutes without activity.
-- A warning appears two minutes before automatic sign-out, allowing the user to continue the session or sign out immediately.
-- Activity in another open LMS tab also keeps the browser session active.
+Certificate generation and verified credential downloads are not yet implemented. Contact messages currently use an email-client handoff rather than a server-backed message inbox. Payment processing and public self-enrolment are not part of the current learner activation flow.

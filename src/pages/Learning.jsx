@@ -212,15 +212,17 @@ export default function Learning() {
     }
     setSubmitting(true)
     setError('')
-    const payload = {
-      learner_id: user.id,
-      assessment_id: assessment.id,
+    const submissionFields = {
       submission_text: submissionText.trim(),
       resource_url: submissionUrl.trim() || null
     }
     const result = existing
-      ? await supabase.from('assessment_submissions').update(payload).eq('id', existing.id)
-      : await supabase.from('assessment_submissions').insert(payload)
+      ? await supabase.from('assessment_submissions').update(submissionFields).eq('id', existing.id)
+      : await supabase.from('assessment_submissions').insert({
+          learner_id: user.id,
+          assessment_id: assessment.id,
+          ...submissionFields
+        })
     if (result.error) {
       setError(result.error.message)
     } else {

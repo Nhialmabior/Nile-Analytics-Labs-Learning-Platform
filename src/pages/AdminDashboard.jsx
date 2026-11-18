@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, BookOpen, Users, ClipboardList, BarChart3, LogOut, Layers3,
   Plus, RefreshCw, Search, GraduationCap, TrendingUp, FileCheck2, Eye, EyeOff,
-  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket, Menu, Home
+  Pencil, Trash2, X, AlertCircle, CheckCircle2, Ticket, Menu, Home, History
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -14,6 +14,7 @@ const sections = [
   ['courses', 'Courses', BookOpen],
   ['curriculum', 'Curriculum', Layers3],
   ['learners', 'Learners', Users],
+  ['activity', 'Activity log', History],
   ['assessments', 'Assessments', ClipboardList],
   ['reports', 'Reports', BarChart3]
 ]
@@ -40,6 +41,13 @@ export default function AdminDashboard() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [search, setSearch] = useState('')
+  const [learnerAccessFilter, setLearnerAccessFilter] = useState('all')
+  const [learnerEnrolmentFilter, setLearnerEnrolmentFilter] = useState('all')
+  const [selectedLearnerId, setSelectedLearnerId] = useState(null)
+  const [changingLearnerAccessId, setChangingLearnerAccessId] = useState(null)
+  const [accessHistory, setAccessHistory] = useState([])
+  const [accessHistoryLoading, setAccessHistoryLoading] = useState(false)
+  const [accessHistoryError, setAccessHistoryError] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(blankCourse)
@@ -118,6 +126,53 @@ export default function AdminDashboard() {
   }, [])
 
   useEffect(() => { loadData() }, [loadData])
+
+  async function loadAccessHistory() {
+    setAccessHistoryLoading(true)
+    setAccessHistoryError('')
+    const { data, error: historyError } = await supabase.rpc('get_learner_access_audit', { p_limit: 100 })
+    if (historyError) {
+      setAccessHistoryError(historyError.message)
+    } else {
+      setAccessHistory(data || [])
+    }
+    setAccessHistoryLoading(false)
+  }
+
+  async function toggleLearnerAccess(person) {
+    const nextEnabled = !person.access_enabled
+    const action = nextEnabled ? 'enable' : 'suspend'
+    const reason = window.prompt('Enter the reason to ' + action + ' access for ' + (person.full_name || 'this learner') + ' (3–500 characters):')
+    if (reason === null) return
+    if (reason.trim().length < 3 || reason.trim().length > 500) {
+      setError('Please provide a reason between 3 and 500 characters.')
+      return
+    }
+    const confirmed = window.confirm(
+      'Are you sure you want to ' + action + ' this learner account? ' +
+      (nextEnabled
+        ? 'The learner will regain access to the learning platform.'
+        : 'The learner will lose access to protected learning content.') +
+      '\\n\\nReason: ' + reason.trim()
+    )
+    if (!confirmed) return
+
+    setChangingLearnerAccessId(person.id)
+    setError('')
+    setNotice('')
+    const { error: accessError } = await supabase.rpc('set_learner_access', {
+      p_learner_id: person.id,
+      p_access_enabled: nextEnabled,
+      p_reason: reason.trim()
+    })
+    setChangingLearnerAccessId(null)
+    if (accessError) {
+      setError(accessError.message)
+      return
+    }
+    setNotice('Learner access ' + (nextEnabled ? 'enabled' : 'suspended') + '. The change was recorded in the access audit log.')
+    await loadData()
+  }
 
   async function issueLearnerVoucher(event) {
     event.preventDefault()
@@ -277,7 +332,34 @@ export default function AdminDashboard() {
   }
 
   const filteredCourses = courses.filter(course => (course.title + ' ' + course.category).toLowerCase().includes(search.toLowerCase()))
-  const filteredLearners = learners.filter(person => (person.full_name || '').toLowerCase().includes(search.toLowerCase()) || person.id.toLowerCase().includes(search.toLowerCase()))
+  const learnerSummaries = new Map()
+  for (const row of completionRows) {
+    const current = learnerSummaries.get(row.learnerId) || { enrolments: 0, measurable: 0, progressTotal: 0, completed: 0 }
+    current.enrolments += 1
+    if (row.progress !== null) {
+      current.measurable += 1
+      current.progressTotal += row.progress
+      if (row.progress === 100) current.completed += 1
+    }
+    learnerSummaries.set(row.learnerId, current)
+  }
+  const selectedLearner = learners.find(person => person.id === selectedLearnerId) || null
+  const selectedLearnerEnrolments = selectedLearner
+    ? completionRows.filter(row => row.learnerId === selectedLearner.id)
+    : []
+  const selectedLearnerSubmissions = selectedLearner
+    ? submissions.filter(row => row.learner_id === selectedLearner.id)
+    : []
+  const filteredLearners = learners.filter(person => {
+    const matchesSearch = (person.full_name || '').toLowerCase().includes(search.trim().toLowerCase()) ||
+      person.id.toLowerCase().includes(search.trim().toLowerCase())
+    const matchesAccess = learnerAccessFilter === 'all' ||
+      (learnerAccessFilter === 'approved' ? person.access_enabled : !person.access_enabled)
+    const hasEnrolment = (learnerSummaries.get(person.id)?.enrolments || 0) > 0
+    const matchesEnrolment = learnerEnrolmentFilter === 'all' ||
+      (learnerEnrolmentFilter === 'enrolled' ? hasEnrolment : !hasEnrolment)
+    return matchesSearch && matchesAccess && matchesEnrolment
+  })
 
   // Report only recorded assessment activity. Unmarked work is never treated as a zero.
   const gradedSubmissions = submissions.filter(item => item.graded_at && item.score !== null && item.score !== undefined)
@@ -356,7 +438,7 @@ export default function AdminDashboard() {
         <div className="admin-side-label">WORKSPACE</div>
         <nav className="admin-nav">
           {sections.map(([id, label, Icon]) => (
-            <button key={id} type="button" className={section === id ? 'admin-nav-link active' : 'admin-nav-link'} onClick={() => { setSection(id); setSearch(''); setShowForm(false); setMobileNavOpen(false) }}>
+            <button key={id} type="button" className={section === id ? 'admin-nav-link active' : 'admin-nav-link'} onClick={() => { setSection(id); setSearch(''); setShowForm(false); setMobileNavOpen(false); if (id === 'activity') loadAccessHistory() }}>
               <Icon size={18} />{label}
             </button>
           ))}
@@ -428,10 +510,53 @@ export default function AdminDashboard() {
               </div>}
             </div>
             <div className="admin-panel">
-              <div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{learners.length}</span></h2><p>Existing profiles are preserved; only approved accounts can access learning materials.</p></div><div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search learners" /></div></div>
-              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New voucher activations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr>)}</tbody></table></div>}
+              <div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{filteredLearners.length} of {learners.length}</span></h2><p>Existing profiles are preserved; only approved accounts can access learning materials.</p></div></div>
+              <div className="admin-learner-filters">
+                <div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by learner name or profile ID" aria-label="Search learners by name or profile ID" /></div>
+                <label>Access status<select value={learnerAccessFilter} onChange={e => setLearnerAccessFilter(e.target.value)}><option value="all">All access statuses</option><option value="approved">Enabled</option><option value="not-approved">Suspended</option></select></label>
+                <label>Enrolment activity<select value={learnerEnrolmentFilter} onChange={e => setLearnerEnrolmentFilter(e.target.value)}><option value="all">All learners</option><option value="enrolled">Has enrolments</option><option value="not-enrolled">No enrolments</option></select></label>
+                {(search || learnerAccessFilter !== 'all' || learnerEnrolmentFilter !== 'all') && <button type="button" className="admin-filter-reset" onClick={() => { setSearch(''); setLearnerAccessFilter('all'); setLearnerEnrolmentFilter('all') }}>Clear filters</button>}
+              </div>
+              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>{learners.length === 0 ? 'No learner accounts yet' : 'No learners match these filters'}</strong><span>{learners.length === 0 ? 'New voucher activations will appear here.' : 'Try a different search or clear the filters.'}</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ENROLMENTS</th><th>AVERAGE PROGRESS</th><th>ACCESS</th><th>ACTION</th></tr></thead><tbody>{filteredLearners.map(person => { const summary = learnerSummaries.get(person.id); const average = summary?.measurable ? summary.progressTotal / summary.measurable : null; return <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td>{summary?.enrolments || 0}{summary?.completed ? <small>{summary.completed} fully completed</small> : null}</td><td>{average === null ? '—' : <div className="admin-completion-cell"><strong>{average.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: average + '%' }}/></div></div>}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Enabled' : 'Suspended'}</span></td><td><div className="admin-row-actions"><button type="button" className="admin-learner-view" onClick={() => setSelectedLearnerId(person.id)}><Eye size={14}/> View profile</button><button type="button" className={person.access_enabled ? 'admin-access-action suspend' : 'admin-access-action enable'} disabled={changingLearnerAccessId === person.id} onClick={() => toggleLearnerAccess(person)}>{changingLearnerAccessId === person.id ? 'Saving…' : person.access_enabled ? 'Suspend' : 'Enable'}</button></div></td></tr> })}</tbody></table></div>}
             </div>
+            {selectedLearner && <div className="admin-learner-modal-backdrop" role="presentation" onClick={event => { if (event.target === event.currentTarget) setSelectedLearnerId(null) }}>
+              <section className="admin-learner-modal" role="dialog" aria-modal="true" aria-labelledby="learner-profile-title">
+                <div className="admin-learner-modal-heading"><div><span className="section-kicker">LEARNER RECORD</span><h2 id="learner-profile-title">{selectedLearner.full_name || 'Name not provided'}</h2><p>{selectedLearner.id}</p></div><button type="button" className="admin-close" onClick={() => setSelectedLearnerId(null)} aria-label="Close learner profile"><X size={19}/></button></div>
+                <div className="admin-learner-profile-stats">
+                  <article><small>Access</small><strong>{selectedLearner.access_enabled ? 'Enabled' : 'Suspended'}</strong><button type="button" className={selectedLearner.access_enabled ? 'admin-access-action suspend' : 'admin-access-action enable'} disabled={changingLearnerAccessId === selectedLearner.id} onClick={() => toggleLearnerAccess(selectedLearner)}>{changingLearnerAccessId === selectedLearner.id ? 'Saving…' : selectedLearner.access_enabled ? 'Suspend access' : 'Enable access'}</button></article>
+                  <article><small>Registered</small><strong>{new Date(selectedLearner.created_at).toLocaleDateString()}</strong></article>
+                  <article><small>Enrolments</small><strong>{selectedLearnerEnrolments.length}</strong></article>
+                  <article><small>Submissions</small><strong>{selectedLearnerSubmissions.length}</strong></article>
+                </div>
+                <div className="admin-learner-detail-section"><h3>Course enrolments and progress</h3>
+                  {selectedLearnerEnrolments.length === 0 ? <p className="admin-muted">This learner has no active or completed course enrolments.</p> : selectedLearnerEnrolments.map(row => <article className="admin-learner-course" key={row.id}><div><strong>{row.courseTitle}</strong><span>{row.status || 'Enrolled'} · {row.completedLessons} of {row.lessonCount} published lessons completed</span></div><strong>{row.progress === null ? 'Not available' : row.progress + '%'}</strong>{row.progress !== null && <div className="admin-completion-track"><span style={{width:row.progress+'%'}}/></div>}</article>)}
+                </div>
+                <div className="admin-learner-detail-section"><h3>Assessment activity</h3>
+                  {selectedLearnerSubmissions.length === 0 ? <p className="admin-muted">No assessment submissions recorded.</p> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ASSESSMENT</th><th>SUBMITTED</th><th>RESULT</th><th>FEEDBACK</th></tr></thead><tbody>{selectedLearnerSubmissions.map(submission => { const assessment = assessments.find(item => item.id === submission.assessment_id); return <tr key={submission.id}><td><strong>{assessment?.title || 'Assessment'}</strong><small>{assessment?.courses?.title || 'Course'}</small></td><td>{submission.submitted_at ? new Date(submission.submitted_at).toLocaleDateString() : '—'}</td><td>{submission.graded_at && submission.score !== null ? submission.score + ' / ' + (assessment?.total_marks || '—') : 'Awaiting marking'}</td><td>{submission.feedback || '—'}</td></tr> })}</tbody></table></div>}
+                </div>
+              </section>
+            </div>}
           </>}
+
+          {section === 'activity' && <div className="admin-panel">
+            <div className="admin-panel-heading">
+              <div><h2>Learner access history <span className="admin-count">{accessHistory.length}</span></h2><p>Review recent learner account enablement and suspension decisions.</p></div>
+              <button type="button" className="admin-refresh" onClick={loadAccessHistory} disabled={accessHistoryLoading}><RefreshCw size={15} className={accessHistoryLoading ? 'admin-spin' : ''}/> Refresh history</button>
+            </div>
+            {accessHistoryError && <div className="admin-alert error"><AlertCircle size={17}/><span>{accessHistoryError}</span></div>}
+            {accessHistoryLoading ? <p className="admin-muted">Loading access history…</p> : accessHistoryError ? null : accessHistory.length === 0
+              ? <div className="admin-empty"><History size={28}/><strong>No access changes recorded</strong><span>When an administrator enables or suspends a learner, the decision will appear here with its reason and timestamp.</span></div>
+              : <div className="admin-table-wrap"><table className="admin-table admin-audit-table"><thead><tr><th>LEARNER</th><th>CHANGE</th><th>ADMINISTRATOR</th><th>REASON</th><th>DATE &amp; TIME</th></tr></thead><tbody>
+                {accessHistory.map(item => <tr key={item.id}>
+                  <td><strong>{item.learner_name}</strong><small>{item.learner_id}</small></td>
+                  <td><span className={item.new_access_enabled ? 'admin-status published' : 'admin-status draft'}>{item.new_access_enabled ? 'Enabled' : 'Suspended'}</span><small>From {item.previous_access_enabled ? 'Enabled' : 'Suspended'}</small></td>
+                  <td>{item.administrator_name}<small>{item.changed_by.slice(0, 8)}…</small></td>
+                  <td className="admin-audit-reason">{item.reason}</td>
+                  <td>{new Date(item.changed_at).toLocaleString()}</td>
+                </tr>)}
+              </tbody></table></div>}
+            <p className="admin-muted admin-audit-note">Showing up to 100 most recent changes. Audit records are read-only from this dashboard.</p>
+          </div>}
 
           {section === 'assessments' && <div className="admin-panel">
             <div className="admin-panel-heading"><div><h2>Assessments <span className="admin-count">{assessments.length}</span></h2><p>Create assignments, publish instructions and review learner submissions.</p></div><button className="btn btn-primary" type="button" onClick={startAssessment}><Plus size={16}/> Create assessment</button></div>
