@@ -127,6 +127,7 @@ using (
 );
 
 drop policy if exists "Learners submit own work" on public.assessment_submissions;
+drop policy if exists "Learners submit own enrolled published assessment work" on public.assessment_submissions;
 drop policy if exists "Enrolled learners submit published assessment work" on public.assessment_submissions;
 create policy "Learners submit own enrolled published assessment work"
 on public.assessment_submissions for insert to authenticated
