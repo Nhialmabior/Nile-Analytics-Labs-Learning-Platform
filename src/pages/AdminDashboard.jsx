@@ -42,6 +42,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('')
   const [learnerAccessFilter, setLearnerAccessFilter] = useState('all')
   const [learnerEnrolmentFilter, setLearnerEnrolmentFilter] = useState('all')
+  const [selectedLearnerId, setSelectedLearnerId] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(blankCourse)
@@ -290,6 +291,13 @@ export default function AdminDashboard() {
     }
     learnerSummaries.set(row.learnerId, current)
   }
+  const selectedLearner = learners.find(person => person.id === selectedLearnerId) || null
+  const selectedLearnerEnrolments = selectedLearner
+    ? completionRows.filter(row => row.learnerId === selectedLearner.id)
+    : []
+  const selectedLearnerSubmissions = selectedLearner
+    ? submissions.filter(row => row.learner_id === selectedLearner.id)
+    : []
   const filteredLearners = learners.filter(person => {
     const matchesSearch = (person.full_name || '').toLowerCase().includes(search.trim().toLowerCase()) ||
       person.id.toLowerCase().includes(search.trim().toLowerCase())
@@ -457,8 +465,25 @@ export default function AdminDashboard() {
                 <label>Enrolment activity<select value={learnerEnrolmentFilter} onChange={e => setLearnerEnrolmentFilter(e.target.value)}><option value="all">All learners</option><option value="enrolled">Has enrolments</option><option value="not-enrolled">No enrolments</option></select></label>
                 {(search || learnerAccessFilter !== 'all' || learnerEnrolmentFilter !== 'all') && <button type="button" className="admin-filter-reset" onClick={() => { setSearch(''); setLearnerAccessFilter('all'); setLearnerEnrolmentFilter('all') }}>Clear filters</button>}
               </div>
-              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>{learners.length === 0 ? 'No learner accounts yet' : 'No learners match these filters'}</strong><span>{learners.length === 0 ? 'New voucher activations will appear here.' : 'Try a different search or clear the filters.'}</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ENROLMENTS</th><th>AVERAGE PROGRESS</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => { const summary = learnerSummaries.get(person.id); const average = summary?.measurable ? summary.progressTotal / summary.measurable : null; return <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td>{summary?.enrolments || 0}{summary?.completed ? <small>{summary.completed} fully completed</small> : null}</td><td>{average === null ? '—' : <div className="admin-completion-cell"><strong>{average.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: average + '%' }}/></div></div>}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr> })}</tbody></table></div>}
+              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>{learners.length === 0 ? 'No learner accounts yet' : 'No learners match these filters'}</strong><span>{learners.length === 0 ? 'New voucher activations will appear here.' : 'Try a different search or clear the filters.'}</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ENROLMENTS</th><th>AVERAGE PROGRESS</th><th>ACCESS</th><th>ACTION</th></tr></thead><tbody>{filteredLearners.map(person => { const summary = learnerSummaries.get(person.id); const average = summary?.measurable ? summary.progressTotal / summary.measurable : null; return <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td>{summary?.enrolments || 0}{summary?.completed ? <small>{summary.completed} fully completed</small> : null}</td><td>{average === null ? '—' : <div className="admin-completion-cell"><strong>{average.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: average + '%' }}/></div></div>}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td><td><button type="button" className="admin-learner-view" onClick={() => setSelectedLearnerId(person.id)}><Eye size={14}/> View profile</button></td></tr> })}</tbody></table></div>}
             </div>
+            {selectedLearner && <div className="admin-learner-modal-backdrop" role="presentation" onClick={event => { if (event.target === event.currentTarget) setSelectedLearnerId(null) }}>
+              <section className="admin-learner-modal" role="dialog" aria-modal="true" aria-labelledby="learner-profile-title">
+                <div className="admin-learner-modal-heading"><div><span className="section-kicker">LEARNER RECORD</span><h2 id="learner-profile-title">{selectedLearner.full_name || 'Name not provided'}</h2><p>{selectedLearner.id}</p></div><button type="button" className="admin-close" onClick={() => setSelectedLearnerId(null)} aria-label="Close learner profile"><X size={19}/></button></div>
+                <div className="admin-learner-profile-stats">
+                  <article><small>Access</small><strong>{selectedLearner.access_enabled ? 'Approved' : 'Not authorised'}</strong></article>
+                  <article><small>Registered</small><strong>{new Date(selectedLearner.created_at).toLocaleDateString()}</strong></article>
+                  <article><small>Enrolments</small><strong>{selectedLearnerEnrolments.length}</strong></article>
+                  <article><small>Submissions</small><strong>{selectedLearnerSubmissions.length}</strong></article>
+                </div>
+                <div className="admin-learner-detail-section"><h3>Course enrolments and progress</h3>
+                  {selectedLearnerEnrolments.length === 0 ? <p className="admin-muted">This learner has no active or completed course enrolments.</p> : selectedLearnerEnrolments.map(row => <article className="admin-learner-course" key={row.id}><div><strong>{row.courseTitle}</strong><span>{row.status || 'Enrolled'} · {row.completedLessons} of {row.lessonCount} published lessons completed</span></div><strong>{row.progress === null ? 'Not available' : row.progress + '%'}</strong>{row.progress !== null && <div className="admin-completion-track"><span style={{width:row.progress+'%'}}/></div>}</article>)}
+                </div>
+                <div className="admin-learner-detail-section"><h3>Assessment activity</h3>
+                  {selectedLearnerSubmissions.length === 0 ? <p className="admin-muted">No assessment submissions recorded.</p> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>ASSESSMENT</th><th>SUBMITTED</th><th>RESULT</th><th>FEEDBACK</th></tr></thead><tbody>{selectedLearnerSubmissions.map(submission => { const assessment = assessments.find(item => item.id === submission.assessment_id); return <tr key={submission.id}><td><strong>{assessment?.title || 'Assessment'}</strong><small>{assessment?.courses?.title || 'Course'}</small></td><td>{submission.submitted_at ? new Date(submission.submitted_at).toLocaleDateString() : '—'}</td><td>{submission.graded_at && submission.score !== null ? submission.score + ' / ' + (assessment?.total_marks || '—') : 'Awaiting marking'}</td><td>{submission.feedback || '—'}</td></tr> })}</tbody></table></div>}
+                </div>
+              </section>
+            </div>}
           </>}
 
           {section === 'assessments' && <div className="admin-panel">
