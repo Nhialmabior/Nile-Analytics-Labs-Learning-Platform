@@ -567,7 +567,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
   margin-top: 16px;
   font-size: 0.8rem;
 }
-.admin-table td small {
+.admin-audit-table td small {
   display: block;
   margin-top: 4px;
   color: var(--muted, #718096);
