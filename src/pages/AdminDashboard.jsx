@@ -40,6 +40,8 @@ export default function AdminDashboard() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [search, setSearch] = useState('')
+  const [learnerAccessFilter, setLearnerAccessFilter] = useState('all')
+  const [learnerEnrolmentFilter, setLearnerEnrolmentFilter] = useState('all')
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(blankCourse)
@@ -288,7 +290,16 @@ export default function AdminDashboard() {
     }
     learnerSummaries.set(row.learnerId, current)
   }
-  const filteredLearners = learners.filter(person => (person.full_name || '').toLowerCase().includes(search.toLowerCase()) || person.id.toLowerCase().includes(search.toLowerCase()))
+  const filteredLearners = learners.filter(person => {
+    const matchesSearch = (person.full_name || '').toLowerCase().includes(search.trim().toLowerCase()) ||
+      person.id.toLowerCase().includes(search.trim().toLowerCase())
+    const matchesAccess = learnerAccessFilter === 'all' ||
+      (learnerAccessFilter === 'approved' ? person.access_enabled : !person.access_enabled)
+    const hasEnrolment = (learnerSummaries.get(person.id)?.enrolments || 0) > 0
+    const matchesEnrolment = learnerEnrolmentFilter === 'all' ||
+      (learnerEnrolmentFilter === 'enrolled' ? hasEnrolment : !hasEnrolment)
+    return matchesSearch && matchesAccess && matchesEnrolment
+  })
 
   // Report only recorded assessment activity. Unmarked work is never treated as a zero.
   const gradedSubmissions = submissions.filter(item => item.graded_at && item.score !== null && item.score !== undefined)
@@ -439,8 +450,14 @@ export default function AdminDashboard() {
               </div>}
             </div>
             <div className="admin-panel">
-              <div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{learners.length}</span></h2><p>Existing profiles are preserved; only approved accounts can access learning materials.</p></div><div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search learners" /></div></div>
-              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>No learner accounts yet</strong><span>New voucher activations will appear here.</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ENROLMENTS</th><th>AVERAGE PROGRESS</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => { const summary = learnerSummaries.get(person.id); const average = summary?.measurable ? summary.progressTotal / summary.measurable : null; return <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td>{summary?.enrolments || 0}{summary?.completed ? <small>{summary.completed} fully completed</small> : null}</td><td>{average === null ? '—' : <div className="admin-completion-cell"><strong>{average.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: average + '%' }}/></div></div>}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr> })}</tbody></table></div>}
+              <div className="admin-panel-heading"><div><h2>Registered learners <span className="admin-count">{filteredLearners.length} of {learners.length}</span></h2><p>Existing profiles are preserved; only approved accounts can access learning materials.</p></div></div>
+              <div className="admin-learner-filters">
+                <div className="admin-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by learner name or profile ID" aria-label="Search learners by name or profile ID" /></div>
+                <label>Access status<select value={learnerAccessFilter} onChange={e => setLearnerAccessFilter(e.target.value)}><option value="all">All access statuses</option><option value="approved">Approved</option><option value="not-approved">Not authorised</option></select></label>
+                <label>Enrolment activity<select value={learnerEnrolmentFilter} onChange={e => setLearnerEnrolmentFilter(e.target.value)}><option value="all">All learners</option><option value="enrolled">Has enrolments</option><option value="not-enrolled">No enrolments</option></select></label>
+                {(search || learnerAccessFilter !== 'all' || learnerEnrolmentFilter !== 'all') && <button type="button" className="admin-filter-reset" onClick={() => { setSearch(''); setLearnerAccessFilter('all'); setLearnerEnrolmentFilter('all') }}>Clear filters</button>}
+              </div>
+              {loading ? <p className="admin-muted">Loading learners…</p> : filteredLearners.length === 0 ? <div className="admin-empty"><Users size={28} /><strong>{learners.length === 0 ? 'No learner accounts yet' : 'No learners match these filters'}</strong><span>{learners.length === 0 ? 'New voucher activations will appear here.' : 'Try a different search or clear the filters.'}</span></div> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>PROFILE ID</th><th>REGISTERED</th><th>ENROLMENTS</th><th>AVERAGE PROGRESS</th><th>ACCESS</th></tr></thead><tbody>{filteredLearners.map(person => { const summary = learnerSummaries.get(person.id); const average = summary?.measurable ? summary.progressTotal / summary.measurable : null; return <tr key={person.id}><td><strong>{person.full_name || 'Name not provided'}</strong><small>Profile record</small></td><td><code>{person.id.slice(0, 8)}…</code></td><td>{new Date(person.created_at).toLocaleDateString()}</td><td>{summary?.enrolments || 0}{summary?.completed ? <small>{summary.completed} fully completed</small> : null}</td><td>{average === null ? '—' : <div className="admin-completion-cell"><strong>{average.toFixed(1)}%</strong><div className="admin-completion-track"><span style={{ width: average + '%' }}/></div></div>}</td><td><span className={person.access_enabled ? 'admin-status published' : 'admin-status draft'}>{person.access_enabled ? 'Approved' : 'Not authorised'}</span></td></tr> })}</tbody></table></div>}
             </div>
           </>}
 
