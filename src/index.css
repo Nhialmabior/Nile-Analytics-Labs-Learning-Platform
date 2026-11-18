@@ -517,3 +517,40 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .admin-learner-course>strong{font-size:11px;color:var(--navy)}
 .admin-learner-course>.admin-completion-track{grid-column:1/-1}
 @media(max-width:600px){.admin-learner-modal-backdrop{padding:10px}.admin-learner-modal{padding:17px;max-height:92vh}.admin-learner-profile-stats{grid-template-columns:1fr 1fr}.admin-learner-modal-heading h2{font-size:18px}}
+
+
+/* Administrator-controlled learner access */
+.admin-access-action {
+  border: 1px solid var(--line, #dbe4e8);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .18s ease, border-color .18s ease, opacity .18s ease;
+}
+.admin-access-action.suspend {
+  color: #a33a32;
+  background: #fff7f6;
+  border-color: #f0c9c5;
+}
+.admin-access-action.enable {
+  color: #176548;
+  background: #f1faf5;
+  border-color: #bfe3ce;
+}
+.admin-access-action:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+.admin-learner-profile-stats .admin-access-action {
+  margin-top: 8px;
+}
+@media (max-width: 720px) {
+  .admin-row-actions {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
