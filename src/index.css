@@ -554,3 +554,23 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
     align-items: center;
   }
 }
+
+
+/* Learner access audit history */
+.admin-audit-reason {
+  min-width: 190px;
+  max-width: 320px;
+  white-space: normal;
+  line-height: 1.5;
+}
+.admin-audit-note {
+  margin-top: 16px;
+  font-size: 0.8rem;
+}
+.admin-table td small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted, #718096);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
