@@ -65,3 +65,19 @@ Enable Supabase Auth leaked-password protection after reviewing the current Auth
 - Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
 - Supabase password security: https://supabase.com/docs/guides/auth/password-security
 - Supabase CLI v3 migration notes: https://supabase.com/changelog?types=breaking-change
+
+
+## Staging preflight results (2026-11-18)
+
+A read-only preflight was run against `nile-analytics-labs-staging`. No schema, data, Auth settings, or functions were changed.
+
+- All 18 public tables reported RLS enabled.
+- The three RLS-enabled tables with no policies are `learner_access_audit`, `learner_vouchers`, and `nile_bot_usage`. This is deny-by-default and is consistent with service/RPC-only access, but must remain intentional and be retested.
+- Seven SECURITY DEFINER functions are executable by authenticated users: `get_learner_access_audit`, `grade_assessment_submission`, `has_lms_access`, `is_admin`, `issue_learner_voucher`, `set_learner_access`, and `submit_quiz_attempt`. Code review confirmed explicit active-admin checks in the audit, grading, voucher issuance, and learner-access RPCs; quiz submission checks signed-in LMS access and active course enrolment. The two helper functions are used by RLS. Keep these grants only while their guards and intended use remain verified.
+- Read-only privilege inspection also found broad `anon` table/column grants on sensitive tables such as profiles, lesson progress, and assessment submissions. Current RLS policies are scoped to `authenticated`, so anonymous row access is currently denied by RLS; however, least-privilege hardening should remove unnecessary `anon` grants after checking that no public workflow depends on them. This must be included in the final SQL review rather than assumed safe.
+- The staging project currently has only two learner profiles and both have `access_enabled = false`; there is no enabled admin test account. Consequently, role-based functional tests cannot yet be performed. Do not enable or repurpose existing accounts. A dedicated staging-only admin and learner test account pair is required, with explicit approval, before applying and exercising the hardening script.
+- Security Advisor still reports leaked-password protection disabled, seven authenticated SECURITY DEFINER functions, and three no-policy RLS tables. Performance Advisor reports missing foreign-key indexes and multiple permissive policies; those are separate performance follow-ups and should not be mixed into the production security migration.
+
+### Current staging gate
+
+**Not ready for migration testing.** First confirm a restorable staging backup and obtain approval to create dedicated staging-only test accounts. Then review the final anon-grant revocations and run the full admin/learner test matrix. No production or staging database writes have been made during this audit.
