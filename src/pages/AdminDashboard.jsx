@@ -546,7 +546,7 @@ export default function AdminDashboard() {
             {accessHistoryError && <div className="admin-alert error"><AlertCircle size={17}/><span>{accessHistoryError}</span></div>}
             {accessHistoryLoading ? <p className="admin-muted">Loading access history…</p> : accessHistoryError ? null : accessHistory.length === 0
               ? <div className="admin-empty"><History size={28}/><strong>No access changes recorded</strong><span>When an administrator enables or suspends a learner, the decision will appear here with its reason and timestamp.</span></div>
-              : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>LEARNER</th><th>CHANGE</th><th>ADMINISTRATOR</th><th>REASON</th><th>DATE &amp; TIME</th></tr></thead><tbody>
+              : <div className="admin-table-wrap"><table className="admin-table admin-audit-table"><thead><tr><th>LEARNER</th><th>CHANGE</th><th>ADMINISTRATOR</th><th>REASON</th><th>DATE &amp; TIME</th></tr></thead><tbody>
                 {accessHistory.map(item => <tr key={item.id}>
                   <td><strong>{item.learner_name}</strong><small>{item.learner_id}</small></td>
                   <td><span className={item.new_access_enabled ? 'admin-status published' : 'admin-status draft'}>{item.new_access_enabled ? 'Enabled' : 'Suspended'}</span><small>From {item.previous_access_enabled ? 'Enabled' : 'Suspended'}</small></td>
