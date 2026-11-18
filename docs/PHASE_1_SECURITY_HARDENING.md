@@ -21,9 +21,9 @@ The repository currently uses legacy, manually-run SQL setup files and does not 
 
 ## Security behavior intended by the SQL
 
-1. Learners with enabled LMS access can read published modules, lessons, assessments and quizzes only for courses in which they have an active enrolment.
+1. Learners with enabled LMS access can read published modules, lessons, assessments and quizzes only for courses in which they have an active or completed enrolment; cancelled enrolments do not grant content access.
 2. Administrators retain access to drafts and all learning content through the existing `public.is_admin()` helper.
-3. Lesson progress can be inserted only for the signed-in learner, for a published lesson in a published course with an active enrolment.
+3. Lesson progress can be inserted only for the signed-in learner, for a published lesson in a published course with an active enrolment. Completed learners retain read access to their course content.
 4. Learners can submit and revise only their own ungraded assessment response and resource URL.
 5. Learners cannot directly write assessment marks, feedback, grading timestamps, progress IDs or completion timestamps.
 6. Quiz questions are visible only to enrolled learners; answer keys remain administrator-only.
