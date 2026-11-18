@@ -57,3 +57,27 @@ Confirm that the deployed database contains these exact objects and that the adm
 The voucher redemption Edge Function still needs server-side abuse/rate limiting. CORS restrictions alone do not prevent non-browser requests. Do not treat the browser's Origin header as authentication. Implement rate limiting with an atomic server-side counter before considering voucher activation production-ready.
 
 A proper timestamped Supabase migration history also remains a separate task. The existing SQL setup scripts must first be reconciled into a baseline; do not simply rename the current setup files as migrations.
+
+
+## Live database review (2026-11-18)
+
+The connected `nile-analytics-labs` project was inspected read-only. The current policies confirmed these access gaps:
+
+- `course_modules`, `lessons`, and `assessments` expose published content to any account with LMS access, without checking enrolment.
+- `quizzes` and `quiz_questions` have multiple permissive policies. One policy grants published content without enrolment; the older enrolment policies also omit the LMS-access check. Because permissive policies are ORed, the older policy must be dropped when replacing it.
+- `lesson_progress` INSERT checks account access and row ownership, but not active enrolment or published course/lesson state.
+- `assessment_submissions` INSERT and UPDATE similarly need active enrolment and published course/assessment checks.
+- The profile table already uses column-level grants to prevent learners from changing `role` and `access_enabled`. Preserve these grants.
+- `learner_vouchers` and `nile_bot_usage` have RLS enabled and no user-facing policies; current grants deny direct authenticated-client access. Their service-side use must continue to be tested.
+- The database reports no migration records. Reconcile the manually applied SQL baseline before using the CLI migration workflow.
+
+The learner assessment editor was adjusted on this branch to update only `submission_text` and `resource_url`, matching the restricted column grants. Initial submission still supplies the learner and assessment IDs.
+
+## Additional production follow-up
+
+- Enable leaked-password protection in Supabase Auth.
+- Add rate limiting/abuse controls to the public voucher redemption Edge Function. Its wildcard CORS header is not an abuse-control mechanism.
+- Review the SECURITY DEFINER functions individually. The grading and voucher-issuing functions contain administrator checks; quiz submission validates the signed-in learner and active enrolment; the LMS helper functions return only the caller's own access/admin status. Do not revoke function execution indiscriminately because policies and application RPC calls may depend on it.
+- Confirm backup retention and a tested restore process in the Supabase Dashboard; this inspection did not verify backup availability.
+
+The GitHub Actions build validation for the latest branch commit completed successfully. This validates the frontend build only; it does not execute or validate the SQL against a staging database.
