@@ -36,8 +36,7 @@ export default function Navbar() {
           ))}
           {!loading && (user ? (
             <>
-              {profile?.role === 'admin' && <Link className="nav-login" to="/admin" onClick={() => setOpen(false)}>Admin workspace</Link>}
-              <Link className="nav-login" to="/dashboard" onClick={() => setOpen(false)}>My Dashboard</Link>
+              {profile?.role !== 'admin' && <Link className="nav-login" to="/dashboard" onClick={() => setOpen(false)}>My Dashboard</Link>}
               <button type="button" className="nav-login" onClick={handleSignOut}>
                 <LogOut size={16} /> Sign out
               </button>
