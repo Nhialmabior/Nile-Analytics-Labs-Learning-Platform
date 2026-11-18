@@ -23,7 +23,7 @@ using (
       select 1
       from public.courses c
       join public.enrollments e on e.course_id = c.id
-      where c.id = course_id
+      where c.id = public.course_modules.course_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
         and e.status = 'active'
@@ -44,7 +44,7 @@ using (
       from public.course_modules m
       join public.courses c on c.id = m.course_id
       join public.enrollments e on e.course_id = c.id
-      where m.id = module_id
+      where m.id = public.lessons.module_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
         and e.status = 'active'
@@ -107,7 +107,7 @@ using (
       select 1
       from public.courses c
       join public.enrollments e on e.course_id = c.id
-      where c.id = course_id
+      where c.id = public.assessments.course_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
         and e.status = 'active'
@@ -211,7 +211,7 @@ using (
       select 1
       from public.courses c
       join public.enrollments e on e.course_id = c.id
-      where c.id = course_id
+      where c.id = public.quizzes.course_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
         and e.status = 'active'
