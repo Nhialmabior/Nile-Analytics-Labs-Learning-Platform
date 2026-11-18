@@ -28,6 +28,7 @@ The repository currently uses legacy, manually-run SQL setup files and does not 
 4. Learners can submit and revise only their own ungraded assessment response and resource URL.
 5. Learners cannot directly write assessment marks, feedback, grading timestamps, progress IDs or completion timestamps.
 6. Quiz questions are visible only to enrolled learners; answer keys remain administrator-only.
+7. Anonymous users cannot execute the administrator grading, quiz submission or admin-check RPCs; trigger-only `handle_new_user()` is not exposed as a client RPC.
 
 ## Important compatibility checks before applying
 
@@ -78,6 +79,7 @@ The learner assessment editor was adjusted on this branch to update only `submis
 
 - Enable leaked-password protection in Supabase Auth.
 - Add rate limiting/abuse controls to the public voucher redemption Edge Function. Its wildcard CORS header is not an abuse-control mechanism.
+- Re-run the security advisors after applying the SQL. In particular, verify anonymous execution is revoked for `grade_assessment_submission`, `is_admin`, `submit_quiz_attempt` and trigger-only `handle_new_user`; authenticated access remains where policies or the frontend need it.
 - Review the SECURITY DEFINER functions individually. The grading and voucher-issuing functions contain administrator checks; quiz submission validates the signed-in learner and active enrolment; the LMS helper functions return only the caller's own access/admin status. Do not revoke function execution indiscriminately because policies and application RPC calls may depend on it.
 - Confirm backup retention and a tested restore process in the Supabase Dashboard; this inspection did not verify backup availability.
 
