@@ -494,3 +494,26 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
 .admin-filter-reset{min-height:36px;border:0;background:transparent;color:var(--blue);font:700 10px 'DM Sans';white-space:nowrap;cursor:pointer}
 @media(max-width:900px){.admin-learner-filters{grid-template-columns:1fr 1fr}.admin-learner-filters .admin-search{grid-column:1/-1}}
 @media(max-width:480px){.admin-learner-filters{grid-template-columns:1fr}.admin-learner-filters .admin-search{grid-column:auto}.admin-filter-reset{justify-self:start}}
+
+
+/* Administrator learner profile and activity view */
+.admin-learner-view{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:#fff;color:var(--blue);font:700 9px 'DM Sans';white-space:nowrap;cursor:pointer}
+.admin-learner-view:hover{border-color:var(--cyan);background:#f2fafb}
+.admin-learner-modal-backdrop{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:22px;background:rgba(8,25,37,.58)}
+.admin-learner-modal{width:min(900px,100%);max-height:min(88vh,900px);overflow:auto;border-radius:15px;background:#fff;padding:25px;box-shadow:0 24px 80px rgba(0,0,0,.24)}
+.admin-learner-modal-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.admin-learner-modal-heading h2{margin:6px 0;font:700 22px Manrope;color:var(--navy)}
+.admin-learner-modal-heading p{margin:0;color:var(--muted);font-size:10px;overflow-wrap:anywhere}
+.admin-learner-profile-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 24px}
+.admin-learner-profile-stats article{display:grid;gap:7px;padding:13px;border:1px solid var(--line);border-radius:9px;background:#fbfdfd}
+.admin-learner-profile-stats small{font-size:9px;color:var(--muted)}
+.admin-learner-profile-stats strong{font:700 12px Manrope;color:var(--navy)}
+.admin-learner-detail-section{margin-top:22px}
+.admin-learner-detail-section h3{margin:0 0 12px;font:700 14px Manrope;color:var(--navy)}
+.admin-learner-course{display:grid;grid-template-columns:1fr auto;gap:8px 14px;padding:13px 0;border-bottom:1px solid #edf2f4}
+.admin-learner-course>div:first-child{display:grid;gap:5px}
+.admin-learner-course>div:first-child strong{font-size:11px;color:var(--ink)}
+.admin-learner-course>div:first-child span{font-size:9px;color:var(--muted)}
+.admin-learner-course>strong{font-size:11px;color:var(--navy)}
+.admin-learner-course>.admin-completion-track{grid-column:1/-1}
+@media(max-width:600px){.admin-learner-modal-backdrop{padding:10px}.admin-learner-modal{padding:17px;max-height:92vh}.admin-learner-profile-stats{grid-template-columns:1fr 1fr}.admin-learner-modal-heading h2{font-size:18px}}
