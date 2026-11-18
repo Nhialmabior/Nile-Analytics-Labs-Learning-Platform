@@ -7,6 +7,28 @@
 
 begin;
 
+-- Enforce the same active-account rule in database authorization as in the UI.
+-- A disabled administrator must not retain elevated access through RLS or RPCs.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $function$
+  select exists (
+    select 1
+    from public.profiles p
+    where p.id = (select auth.uid())
+      and p.role = 'admin'
+      and p.access_enabled is true
+  );
+$function$;
+
+revoke all on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
+
+
 -- ---------------------------------------------------------------------------
 -- 1. Course content: learners must have LMS access and an active enrolment.
 -- Administrators retain access to drafts and all course content.
