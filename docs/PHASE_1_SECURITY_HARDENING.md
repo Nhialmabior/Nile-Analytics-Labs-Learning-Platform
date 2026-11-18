@@ -12,6 +12,7 @@ The repository currently uses legacy, manually-run SQL setup files and does not 
 - Do not execute the hardening SQL until a current database backup has been confirmed.
 - First compare the SQL with the live schema and installed policies in Supabase.
 - Apply the reviewed SQL in a staging project first, then verify with learner and administrator test accounts.
+- Run `phase1_security_hardening.sql` only after all schema, access-control and course-seed scripts (including `seed_excel_course.sql`) have finished. The Excel seed script recreates legacy lesson/progress policies, so applying hardening before it would leave those policies in place.
 - Only apply to production after staging tests pass and a rollback/restore plan is ready.
 
 ## Files in this phase
