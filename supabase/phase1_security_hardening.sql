@@ -199,6 +199,8 @@ grant update (submission_text, resource_url)
 -- Correct answer keys remain administrator-only.
 -- ---------------------------------------------------------------------------
 
+-- Remove the older enrolment-only policy too: it did not check has_lms_access().
+drop policy if exists "Enrolled learners view published course quizzes" on public.quizzes;
 drop policy if exists "Learners view published course quizzes" on public.quizzes;
 create policy "Learners view published course quizzes"
 on public.quizzes for select to authenticated
@@ -219,6 +221,8 @@ using (
   )
 );
 
+-- Remove the older enrolment-only policy too: it did not check has_lms_access().
+drop policy if exists "Enrolled learners view published quiz questions" on public.quiz_questions;
 drop policy if exists "Learners view published quiz questions" on public.quiz_questions;
 create policy "Learners view published quiz questions"
 on public.quiz_questions for select to authenticated
