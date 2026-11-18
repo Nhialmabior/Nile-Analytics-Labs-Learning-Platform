@@ -482,3 +482,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{
  .certificate-status{margin-top:9px}
  .certificate-course-footer{align-items:flex-start;flex-direction:column}
 }
+
+
+/* Administrator learner register filters */
+.admin-learner-filters{display:grid;grid-template-columns:minmax(220px,1.5fr) minmax(155px,1fr) minmax(170px,1fr) auto;align-items:end;gap:10px;margin:-2px 0 18px}
+.admin-learner-filters>label{display:grid;gap:6px;color:#47616c;font-size:9px;font-weight:800}
+.admin-learner-filters select{width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink);font:400 10px 'DM Sans';outline:0}
+.admin-learner-filters select:focus{border-color:var(--cyan)}
+.admin-learner-filters .admin-search{min-height:36px}
+.admin-learner-filters .admin-search input{width:100%;min-width:0}
+.admin-filter-reset{min-height:36px;border:0;background:transparent;color:var(--blue);font:700 10px 'DM Sans';white-space:nowrap;cursor:pointer}
+@media(max-width:900px){.admin-learner-filters{grid-template-columns:1fr 1fr}.admin-learner-filters .admin-search{grid-column:1/-1}}
+@media(max-width:480px){.admin-learner-filters{grid-template-columns:1fr}.admin-learner-filters .admin-search{grid-column:auto}.admin-filter-reset{justify-self:start}}
