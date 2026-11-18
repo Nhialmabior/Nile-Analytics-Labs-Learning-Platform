@@ -84,3 +84,42 @@ The learner assessment editor was adjusted on this branch to update only `submis
 - Confirm backup retention and a tested restore process in the Supabase Dashboard; this inspection did not verify backup availability.
 
 The GitHub Actions build validation for the latest branch commit completed successfully. This validates the frontend build only; it does not execute or validate the SQL against a staging database.
+
+
+## Staging validation (2026-11-18)
+
+A separate free-tier Supabase project, `nile-analytics-labs-staging`, was created in the same region as production. It was initialized from the repository's SQL setup files and course seed scripts, then the Phase 1 hardening script was applied **after** the seeds. No production users, enrolments, submissions, learner records or secrets were copied.
+
+Staging contains the four course catalogue entries, 30 modules, 142 lessons, four assessment records, 12 quizzes and 60 quiz questions. Course publication flags were changed only inside rollback-only test transactions.
+
+The hardening SQL was applied twice successfully, confirming repeatability after the policy cleanup was corrected.
+
+### Rollback-only RLS and workflow tests
+
+Synthetic users were created inside SQL transactions and all test data was rolled back. Final staging counts confirm zero auth users, profiles, enrolments, progress rows, submissions and quiz attempts remain.
+
+| Test identity | Modules | Lessons | Assessments | Quizzes | Questions |
+|---|---:|---:|---:|---:|---:|
+| Active learner enrolled in Excel | 8 | 32 | 1 | 3 | 15 |
+| Completed learner | 8 | 32 | 1 | 3 | 15 |
+| Cancelled learner | 0 | 0 | 0 | 0 | 0 |
+| Non-enrolled learner | 0 | 0 | 0 | 0 | 0 |
+| LMS access disabled | 0 | 0 | 0 | 0 | 0 |
+| Administrator | 30 | 142 | 4 | 12 | 60 |
+
+Additional successful tests:
+- Active learner lesson-progress insertion.
+- Active learner initial assessment submission and update using only the permitted response/link columns.
+- Quiz submission RPC created a quiz attempt and returned a score.
+- Administrator grading RPC updated the score, feedback and grading timestamp.
+- The assessment submission and progress rows remained visible only to their owner and administrator.
+
+### Remaining staging/production work
+
+- The Edge Functions have not yet been deployed to staging; the OpenAI secret has not been copied. End-to-end Nile Bot and voucher activation tests remain pending.
+- Leaked-password protection remains disabled in Auth settings and should be enabled.
+- The security advisor no longer reports anonymous access to the reviewed SECURITY DEFINER RPCs. It still reports authenticated execution for functions intentionally used by signed-in app workflows, plus informational no-policy findings for internal tables with no direct client grants.
+- Performance advisor warnings remain for unindexed foreign keys and multiple permissive policies where an administrator-only `ALL` policy coexists with learner-specific policies. These should be reviewed as performance/maintainability work; the learner policy predicates were tested independently.
+- Backup retention and restore capability have not been verified.
+
+The staging tests validate database policy behavior under simulated authenticated roles. They are not a substitute for browser-level testing with real test accounts or a restore rehearsal.
