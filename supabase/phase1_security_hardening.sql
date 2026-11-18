@@ -26,7 +26,7 @@ using (
       where c.id = public.course_modules.course_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
-        and e.status = 'active'
+        and e.status in ('active', 'completed')
     )
   )
 );
@@ -47,7 +47,7 @@ using (
       where m.id = public.lessons.module_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
-        and e.status = 'active'
+        and e.status in ('active', 'completed')
     )
   )
 );
@@ -110,7 +110,7 @@ using (
       where c.id = public.assessments.course_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
-        and e.status = 'active'
+        and e.status in ('active', 'completed')
     )
   )
 );
@@ -214,7 +214,7 @@ using (
       where c.id = public.quizzes.course_id
         and c.is_published = true
         and e.learner_id = (select auth.uid())
-        and e.status = 'active'
+        and e.status in ('active', 'completed')
     )
   )
 );
@@ -235,7 +235,7 @@ using (
         and q.is_published = true
         and c.is_published = true
         and e.learner_id = (select auth.uid())
-        and e.status = 'active'
+        and e.status in ('active', 'completed')
     )
   )
 );
